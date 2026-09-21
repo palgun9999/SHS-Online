@@ -7,6 +7,44 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCart();
 });
 
+// Setup payment method selection
+function setupPaymentOptions() {
+    const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
+    const upiSection = document.getElementById('upiSection');
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'online_now') {
+                upiSection.style.display = 'block';
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                document.getElementById('upiAmount').textContent = total;
+            } else {
+                upiSection.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Redirect to UPI app
+function redirectToUPI() {
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    document.getElementById('upiAmount').textContent = total;
+
+    // UPI redirect format for mobile
+    const upiId = '9844874544@ptyes';
+    const name = 'Shankar Homeo Stores';
+    const amount = total;
+    const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR`;
+
+    // Redirect to UPI app
+    window.location.href = upiString;
+
+    // Also show confirmation after redirect
+    setTimeout(() => {
+        alert('Opening UPI app to pay ₹' + amount + '. Please complete payment and then place your order.');
+    }, 1000);
+}
+
 // Load cart items
 function loadCart() {
     const cartContainer = document.getElementById('cartItems');
@@ -27,9 +65,12 @@ function loadCart() {
         const itemTotal = item.price * item.quantity;
         subtotal += item.quantity;
 
+        const images = item.images || (item.image ? [item.image] : ['https://via.placeholder.com/100x100?text=No+Image']);
+        const firstImage = images[0];
+
         const cartItem = `
             <div class="cart-item">
-                <img src="${item.image}" alt="${item.medicine_name}" class="item-image" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
+                <img src="${firstImage}" alt="${item.medicine_name}" class="item-image" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
                 <div class="item-details">
                     <div class="item-name">${item.medicine_name}</div>
                     <div class="item-price">₹${item.price}</div>
@@ -47,6 +88,9 @@ function loadCart() {
 
     document.getElementById('subtotal').textContent = `₹${subtotal}`;
     document.getElementById('total').textContent = `₹${subtotal}`;
+
+    // Setup payment options
+    setupPaymentOptions();
 }
 
 // Update quantity
@@ -83,8 +127,47 @@ function checkout() {
         return;
     }
 
-    alert('Proceeding to checkout... (This would integrate with payment gateway in production)');
-    // In production, this would redirect to a payment page
+    // Get selected payment method
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+    // Generate unique order ID
+    const orderId = 'ORD' + Date.now().toString().slice(-8);
+
+    // Generate OTP for order pickup
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+    // Create order object
+    const order = {
+        orderId: orderId,
+        otp: otp,
+        customerId: currentUser.email,
+        customerName: currentUser.name,
+        items: [...cart],
+        total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        paymentMethod: paymentMethod,
+        paymentStatus: paymentMethod === 'online_now' ? 'paid' : 'pending',
+        status: 'placed', // placed, ready, completed
+        createdAt: new Date().toISOString(),
+        acceptedBy: null,
+        acceptedAt: null,
+        completedAt: null
+    };
+
+    // Save order to localStorage
+    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+
+    // Clear cart
+    cart = [];
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+
+    // Store order details for confirmation page
+    localStorage.setItem('lastOrder', JSON.stringify(order));
+
+    // Redirect to order confirmation page
+    window.location.href = 'order-confirmation.html';
 }
 
 // Check for intended action after login
@@ -102,12 +185,13 @@ window.onload = function() {
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
+                const images = product.images || (product.image ? [product.image] : ['https://via.placeholder.com/100x100?text=No+Img']);
                 cart.push({
                     id: product.id,
                     medicine_name: product.medicine_name,
                     price: product.price,
                     quantity: 1,
-                    image: product.image
+                    images: images
                 });
             }
             localStorage.setItem('cart', JSON.stringify(cart));

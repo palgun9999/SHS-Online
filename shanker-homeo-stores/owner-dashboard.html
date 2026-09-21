@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Owner Dashboard - Shankar Homeo Stroes</title>
+    <title>Owner Dashboard - Shankar Homeo Stores</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         .dashboard-container {
@@ -13,7 +13,7 @@
 
         .sidebar {
             width: 250px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #006064 0%, #00838f 100%);
             color: white;
             padding: 2rem;
         }
@@ -109,7 +109,7 @@
         }
 
         th {
-            background: #667eea;
+            background: #00838f;
             color: white;
             font-weight: 600;
         }
@@ -310,7 +310,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Shankar Homeo Stroes</h1>
+            <h1>Shankar Homeo Stores</h1>
             <nav>
                 <button class="login-btn" onclick="window.location.href='index.html'">Home</button>
             </nav>
@@ -320,11 +320,12 @@
             <aside class="sidebar">
                 <h2>Owner Dashboard</h2>
                 <ul class="sidebar-menu">
-                    <li><button class="active" onclick="showSection('home')">Home</button></li>
-                    <li><button onclick="window.location.href='stock-view.html'">👁️ View Stock</button></li>
+                    <li><button class="active" onclick="showSection('home')">🏠 Home</button></li>
+                    <li><button onclick="showSection('employee-management')">� Employee Management</button></li>
+                    <li><button onclick="showSection('stock-management')">� Stock Management</button></li>
+                    <li><button onclick="window.location.href='stock-view.html'">👁️ View Stock Details</button></li>
                     <li><button onclick="window.location.href='stock-edit.html'">✏️ Edit Stock</button></li>
-                    <li><button onclick="showSection('approvals')">Employee Approvals</button></li>
-                    <li><button onclick="showSection('employees')">All Employees</button></li>
+                    <li><button onclick="window.location.href='employee-orders.html'">📦 Order Management</button></li>
                 </ul>
             </aside>
 
@@ -365,6 +366,51 @@
                             <h3 id="lowStockItems">0</h3>
                             <p>Low Stock Items</p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Employee Management Section -->
+                <div id="employee-managementSection" class="content-section">
+                    <div class="table-container">
+                        <h2 style="margin-bottom: 1.5rem; color: #333;">Employee Management</h2>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <button class="action-btn approve-btn" onclick="showSection('approvals')">📋 Pending Approvals</button>
+                            <button class="action-btn" style="background: #00838f; color: white;" onclick="showSection('employees')">👥 All Employees</button>
+                        </div>
+
+                        <div id="employeeManagementContent">
+                            <p style="color: #666; text-align: center; padding: 2rem;">Select an option above to manage employees</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Management Section -->
+                <div id="stock-managementSection" class="content-section">
+                    <div class="table-container">
+                        <h2 style="margin-bottom: 1.5rem; color: #333;">Stock Management</h2>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <button class="action-btn approve-btn" onclick="window.location.href='stock-view.html'">👁️ View Stock</button>
+                            <button class="action-btn" style="background: #00838f; color: white;" onclick="window.location.href='stock-edit.html'">✏️ Edit Stock</button>
+                        </div>
+
+                        <h3 style="margin-bottom: 1rem; color: #333;">Stock Overview</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Brand</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockOverviewTableBody">
+                                <!-- Stock overview will be populated here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -414,7 +460,7 @@
         </div>
 
         <footer>
-            <p>&copy; 2026 Shankar Homeo Stroes. All rights reserved.</p>
+            <p>&copy; 2026 Shankar Homeo Stores. All rights reserved.</p>
         </footer>
     </div>
 

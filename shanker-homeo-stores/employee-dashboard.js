@@ -16,13 +16,13 @@ let currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
-    if (!currentUser || currentUser.userType !== 'employee' || !currentUser.approved) {
+    if (!currentUser || currentUser.accountType !== 'employee' || !currentUser.approved) {
         alert('Access denied. Please login as an approved employee.');
         window.location.href = 'login.html';
         return;
     }
 
-    document.getElementById('userName').textContent = currentUser.fullName;
+    document.getElementById('userName').textContent = currentUser.name;
     loadAttendanceData();
     updateStats();
     updateAttendanceStatus();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Edit - Shankar Homeo Stroes</title>
+    <title>Stock Edit - Shankar Homeo Stores</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         .edit-container {
@@ -48,13 +48,13 @@
         }
 
         .add-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00838f 0%, #006064 100%);
             color: white;
         }
 
         .add-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 131, 143, 0.4);
         }
 
         .table-container {
@@ -139,6 +139,8 @@
             max-width: 600px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             animation: slideDown 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         @keyframes slideDown {
@@ -197,7 +199,7 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #00838f;
         }
 
         .form-actions {
@@ -217,13 +219,13 @@
         }
 
         .save-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00838f 0%, #006064 100%);
             color: white;
         }
 
         .save-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 131, 143, 0.4);
         }
 
         .cancel-btn {
@@ -250,7 +252,7 @@
 
         .search-box input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #00838f;
         }
 
         .user-info {
@@ -269,13 +271,13 @@
         }
 
         .status-homeopathic {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #e0f7fa;
+            color: #006064;
         }
 
         .status-cosmetic {
-            background: #fce4ec;
-            color: #c2185b;
+            background: #f3e5f5;
+            color: #6a1b9a;
         }
 
         @media (max-width: 768px) {
@@ -329,6 +331,8 @@
                 width: 95%;
                 margin: 10% auto;
                 padding: 1.5rem;
+                max-height: 85vh;
+                overflow-y: auto;
             }
 
             .form-group input {
@@ -371,7 +375,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Shankar Homeo Stroes</h1>
+            <h1>Shankar Homeo Stores</h1>
             <nav>
                 <div class="user-info">
                     <span id="userName">User</span>
@@ -471,10 +475,11 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="productImage">Product Image</label>
-                        <input type="file" id="productImage" accept="image/*" onchange="handleImageUpload(event)">
+                        <label for="productImage">Product Images (Multiple)</label>
+                        <input type="file" id="productImage" accept="image/*" multiple onchange="handleImageUpload(event)" style="width: 100%; padding: 0.8rem; border: 2px solid #e9ecef; border-radius: 8px;">
                         <input type="hidden" id="imageUrl">
-                        <div id="imagePreview" style="margin-top: 0.5rem;"></div>
+                        <div id="imagePreview" style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                        <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem;">Supported formats: JPG, PNG, GIF, WebP (Max 5MB each)</p>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="save-btn">Save Product</button>
@@ -485,7 +490,7 @@
         </div>
 
         <footer>
-            <p>&copy; 2026 Shankar Homeo Stroes. All rights reserved.</p>
+            <p>&copy; 2026 Shankar Homeo Stores. All rights reserved.</p>
         </footer>
     </div>
 

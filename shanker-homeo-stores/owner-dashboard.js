@@ -13,14 +13,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check authentication
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
-    if (!currentUser || currentUser.userType !== 'owner' || !currentUser.approved) {
+    if (!currentUser || currentUser.accountType !== 'owner' || !currentUser.approved) {
         alert('Access denied. Please login as an approved owner.');
         window.location.href = 'login.html';
         return;
     }
 
     // Set owner name
-    document.getElementById('ownerName').textContent = currentUser.fullName;
+    document.getElementById('ownerName').textContent = currentUser.name;
 
     loadDashboardData();
 });
@@ -37,12 +37,16 @@ function showSection(section) {
     // Update active button
     const buttons = document.querySelectorAll('.sidebar-menu button');
     if (section === 'home') buttons[0].classList.add('active');
-    if (section === 'approvals') buttons[3].classList.add('active');
-    if (section === 'employees') buttons[4].classList.add('active');
+    if (section === 'employee-management') buttons[1].classList.add('active');
+    if (section === 'stock-management') buttons[2].classList.add('active');
+    if (section === 'approvals') buttons[1].classList.add('active');
+    if (section === 'employees') buttons[1].classList.add('active');
 
     // Update page title
     const titles = {
         'home': 'Welcome',
+        'employee-management': 'Employee Management',
+        'stock-management': 'Stock Management',
         'approvals': 'Employee Approvals',
         'employees': 'All Employees'
     };
@@ -55,7 +59,7 @@ function showSection(section) {
 // Load dashboard data
 function loadDashboardData() {
     const users = getUsers();
-    const employees = users.filter(user => user.userType === 'employee');
+    const employees = users.filter(user => user.accountType === 'employee');
 
     // Get stock data
     const stockData = JSON.parse(localStorage.getItem('stockData')) || [];
@@ -77,6 +81,9 @@ function loadDashboardData() {
 
     // Load all employees table
     loadAllEmployees(employees);
+
+    // Load stock overview
+    loadStockOverview(stockData);
 }
 
 // Load pending approvals
@@ -94,7 +101,7 @@ function loadPendingApprovals(employees) {
     pendingEmployees.forEach(employee => {
         const row = `
             <tr>
-                <td>${employee.fullName}</td>
+                <td>${employee.name}</td>
                 <td>${employee.email}</td>
                 <td>${employee.mobile}</td>
                 <td>${formatDate(employee.createdAt)}</td>
@@ -133,10 +140,48 @@ function loadAllEmployees(employees) {
 
         const row = `
             <tr>
-                <td>${employee.fullName}</td>
+                <td>${employee.name}</td>
                 <td>${employee.email}</td>
                 <td>${employee.mobile}</td>
                 <td>${formatDate(employee.createdAt)}</td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+// Load stock overview
+function loadStockOverview(stockData) {
+    const tbody = document.getElementById('stockOverviewTableBody');
+    if (!tbody) return; // Don't try to load if element doesn't exist
+
+    tbody.innerHTML = '';
+
+    if (stockData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">No stock data available</td></tr>';
+        return;
+    }
+
+    stockData.forEach(item => {
+        let statusClass = 'status-approved';
+        let statusText = 'In Stock';
+
+        if (item.quantity === 0) {
+            statusClass = 'status-rejected';
+            statusText = 'Out of Stock';
+        } else if (item.quantity < 10) {
+            statusClass = 'status-pending';
+            statusText = 'Low Stock';
+        }
+
+        const row = `
+            <tr>
+                <td>${item.medicine_name}</td>
+                <td>${item.brand_name}</td>
+                <td>${item.category}</td>
+                <td>${item.quantity}</td>
+                <td>₹${item.price}</td>
                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
             </tr>
         `;
@@ -186,6 +231,7 @@ function rejectEmployee(email) {
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
     return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 

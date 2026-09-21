@@ -3,8 +3,8 @@ function getStockData() {
     const storedData = localStorage.getItem('stockData');
     if (storedData) {
         const data = JSON.parse(storedData);
-        // Check if data has the new structure with category field
-        if (data.length > 0 && data[0].category) {
+        // Check if data has the new structure with images array
+        if (data.length > 0 && data[0].images) {
             return data;
         }
         // Old structure detected, convert to new structure
@@ -25,7 +25,7 @@ function getStockData() {
             location: "Shelf A-1",
             note: "Best seller",
             category: "homeopathic",
-            image: "https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400"
+            images: ["https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400", "https://images.unsplash.com/photo-1587854692157-c309b9d1eb44?w=400"]
         },
         {
             id: 2,
@@ -39,7 +39,7 @@ function getStockData() {
             location: "Shelf A-2",
             note: "Low stock, reorder soon",
             category: "homeopathic",
-            image: "https://images.unsplash.com/photo-1587854692157-c309b9d1eb44?w=400"
+            images: ["https://images.unsplash.com/photo-1587854692157-c309b9d1eb44?w=400"]
         },
         {
             id: 3,
@@ -53,7 +53,7 @@ function getStockData() {
             location: "Shelf B-1",
             note: "Out of stock",
             category: "homeopathic",
-            image: "https://images.unsplash.com/photo-1598445542092-33f825e0a8d5?w=400"
+            images: ["https://images.unsplash.com/photo-1598445542092-33f825e0a8d5?w=400"]
         },
         {
             id: 4,
@@ -67,7 +67,7 @@ function getStockData() {
             location: "Shelf C-1",
             note: "Popular cosmetic",
             category: "cosmetic",
-            image: "https://images.unsplash.com/photo-1556228720-195a672e8a038?w=400"
+            images: ["https://images.unsplash.com/photo-1556228720-195a672e8a038?w=400", "https://images.unsplash.com/photo-1556228847-44c9c760d664?w=400"]
         },
         {
             id: 5,
@@ -81,7 +81,7 @@ function getStockData() {
             location: "Shelf C-2",
             note: "Skin care",
             category: "cosmetic",
-            image: "https://images.unsplash.com/photo-1556228847-44c9c760d664?w=400"
+            images: ["https://images.unsplash.com/photo-1556228847-44c9c760d664?w=400"]
         },
         {
             id: 6,
@@ -95,7 +95,7 @@ function getStockData() {
             location: "Shelf B-2",
             note: "",
             category: "homeopathic",
-            image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b0?w=400"
+            images: ["https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b0?w=400"]
         },
         {
             id: 7,
@@ -109,7 +109,7 @@ function getStockData() {
             location: "Shelf C-3",
             note: "Anti-aging",
             category: "cosmetic",
-            image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400"
+            images: ["https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400", "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400"]
         },
         {
             id: 8,
@@ -123,7 +123,7 @@ function getStockData() {
             location: "Shelf D-2",
             note: "",
             category: "homeopathic",
-            image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400"
+            images: ["https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400"]
         },
         {
             id: 9,
@@ -137,7 +137,7 @@ function getStockData() {
             location: "Shelf C-4",
             note: "Brightening",
             category: "cosmetic",
-            image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400"
+            images: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400"]
         },
         {
             id: 10,
@@ -151,12 +151,20 @@ function getStockData() {
             location: "Shelf E-1",
             note: "General health",
             category: "homeopathic",
-            image: "https://images.unsplash.com/photo-1551076805-e1869033e561?w=400"
+            images: ["https://images.unsplash.com/photo-1551076805-e1869033e561?w=400"]
         }
     ];
 
     localStorage.setItem('stockData', JSON.stringify(sampleData));
     return sampleData;
+}
+
+// Convert old structure to new structure
+function convertToNewStructure(oldData) {
+    return oldData.map(item => ({
+        ...item,
+        images: item.image ? [item.image] : ['https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400'] // Convert single image to array
+    }));
 }
 
 // Convert old structure to new structure
@@ -177,7 +185,34 @@ let cart = JSON.parse(localStorage.getItem('cart')) || [];
 document.addEventListener('DOMContentLoaded', function() {
     loadProducts();
     updateCartCount();
+    updateNavButtons();
 });
+
+// Update navigation buttons based on login state
+function updateNavButtons() {
+    currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const ordersBtn = document.getElementById('ordersBtn');
+    const loginBtn = document.getElementById('loginBtn');
+
+    if (currentUser) {
+        if (ordersBtn) ordersBtn.style.display = 'block';
+        if (loginBtn) {
+            loginBtn.textContent = '👤 Logout';
+            loginBtn.onclick = function() {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            };
+        }
+    } else {
+        if (ordersBtn) ordersBtn.style.display = 'none';
+        if (loginBtn) {
+            loginBtn.textContent = '👤 Login';
+            loginBtn.onclick = function() {
+                window.location.href = 'login.html';
+            };
+        }
+    }
+}
 
 // Load products
 function loadProducts() {
@@ -188,16 +223,32 @@ function loadProducts() {
         const categoryClass = product.category === 'homeopathic' ? 'status-homeopathic' : 'status-cosmetic';
         const categoryText = product.category === 'homeopathic' ? 'Homeopathic' : 'Cosmetic';
 
+        const images = product.images || (product.image ? [product.image] : ['https://via.placeholder.com/400x200?text=No+Image']);
+        const firstImage = images[0];
+
+        // Create image carousel HTML if multiple images
+        let imageCarouselHtml = '';
+        if (images.length > 1) {
+            imageCarouselHtml = `
+                <div class="image-indicators">
+                    ${images.map((_, index) => `<span class="indicator ${index === 0 ? 'active' : ''}" onclick="changeImage(${product.id}, ${index})"></span>`).join('')}
+                </div>
+            `;
+        }
+
         const card = `
-            <div class="product-card">
-                <img src="${product.image}" alt="${product.medicine_name}" class="product-image" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'">
+            <div class="product-card" data-product-id="${product.id}" onclick="viewProductDetails(${product.id})">
+                <div class="product-image-container">
+                    <img src="${firstImage}" alt="${product.medicine_name}" class="product-image" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" data-current-image="0">
+                    ${imageCarouselHtml}
+                </div>
                 <div class="product-info">
                     <span class="status-badge ${categoryClass}">${categoryText}</span>
                     <h3 class="product-name">${product.medicine_name}</h3>
                     <p class="product-brand">${product.brand_name}</p>
                     <p class="product-price">₹${product.price}</p>
                     <p class="product-location">📍 ${product.location || 'N/A'}</p>
-                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})">🛒 Add to Cart</button>
+                    <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart(${product.id})">🛒 Add to Cart</button>
                 </div>
             </div>
         `;
@@ -257,12 +308,13 @@ function addToCart(productId) {
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
+        const images = product.images || (product.image ? [product.image] : ['https://via.placeholder.com/100x100?text=No+Img']);
         cart.push({
             id: product.id,
             medicine_name: product.medicine_name,
             price: product.price,
             quantity: 1,
-            image: product.image
+            images: images
         });
     }
 
@@ -274,8 +326,38 @@ function addToCart(productId) {
 // Update cart count
 function updateCartCount() {
     const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
-    const cartBtn = document.querySelector('.cart-btn');
-    if (cartBtn) {
-        cartBtn.textContent = `🛒 Cart (${cartCount})`;
+    const cartCountElements = document.querySelectorAll('#cartCount');
+    cartCountElements.forEach(element => {
+        element.textContent = cartCount;
+    });
+}
+
+// View product details
+function viewProductDetails(productId) {
+    const product = allProducts.find(p => p.id === productId);
+    if (product) {
+        localStorage.setItem('selectedProduct', JSON.stringify(product));
+        window.location.href = 'product-details.html';
+    }
+}
+
+// Change product image in carousel
+function changeImage(productId, imageIndex) {
+    const product = allProducts.find(p => p.id === productId);
+    if (!product) return;
+
+    const images = product.images || [];
+    if (images.length <= imageIndex) return;
+
+    const card = document.querySelector(`[data-product-id="${productId}"]`);
+    if (card) {
+        const img = card.querySelector('.product-image');
+        img.src = images[imageIndex];
+
+        // Update indicators
+        const indicators = card.querySelectorAll('.indicator');
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === imageIndex);
+        });
     }
 }

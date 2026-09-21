@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Shankar Homeo Stores</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #006064 0%, #00838f 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .confirmation-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+
+        .confirmation-header h1 {
+            color: #006064;
+            margin-bottom: 0.5rem;
+        }
+
+        .confirmation-header p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .order-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #006064;
+            font-weight: 700;
+        }
+
+        .otp-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .otp-section h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .otp-code {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .otp-instruction {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .payment-info {
+            background: #e8f5e9;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .payment-info h3 {
+            color: #2e7d32;
+            margin-bottom: 0.5rem;
+        }
+
+        .payment-info p {
+            color: #666;
+            margin: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .orders-btn {
+            background: linear-gradient(135deg, #00838f 0%, #006064 100%);
+            color: white;
+        }
+
+        .home-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .confirmation-container {
+                padding: 2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .otp-code {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-container">
+        <div class="success-icon">✓</div>
+        <div class="confirmation-header">
+            <h1>Order Placed Successfully!</h1>
+            <p>Thank you for your order. Here are your order details.</p>
+        </div>
+
+        <div class="order-details" id="orderDetails">
+            <!-- Order details will be loaded here -->
+        </div>
+
+        <div class="otp-section">
+            <h2>Your Pickup OTP</h2>
+            <div class="otp-code" id="otpCode">----</div>
+            <p class="otp-instruction">Please share this OTP when you collect your order from the store.</p>
+        </div>
+
+        <div class="payment-info" id="paymentInfo">
+            <!-- Payment information will be loaded here -->
+        </div>
+
+        <div class="action-buttons">
+            <button class="action-btn orders-btn" onclick="window.location.href='my-orders.html'">📦 View My Orders</button>
+            <button class="action-btn home-btn" onclick="window.location.href='products.html'">🏠 Continue Shopping</button>
+        </div>
+    </div>
+
+    <script src="order-confirmation.js"></script>
+</body>
+</html>

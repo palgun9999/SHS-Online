@@ -3,54 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shankar Homeo Stroes</title>
+    <title>Shankar Homeo Stores</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="products.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Shankar Homeo Stroes</h1>
-            <nav>
-                <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
-            </nav>
+    <div class="mobile-app">
+        <header class="app-header">
+            <h1>🏪 Shankar Homeo Stores</h1>
         </header>
 
-        <main>
-            <section class="welcome-section">
-                <h2>Welcome to Shankar Homeo Stroes</h2>
-                <p>Your trusted destination for quality homeopathic medicines and wellness products.</p>
-                <button class="info-btn" onclick="showInfo()">Info</button>
-                <button class="info-btn" onclick="window.location.href='products.html'" style="margin-left: 1rem;">🛒 Browse Products</button>
-            </section>
+        <main class="app-content">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="🔍 Search for medicines, brands, or categories..." onkeyup="searchProducts()">
+            <div class="cart-icon" onclick="window.location.href='cart.html'">
+                🛒 <span id="cartCount">0</span>
+            </div>
+        </div>
 
-            <section class="info-section" id="infoSection" style="display: none;">
-                <h3>About Homeopathy</h3>
-                <div class="info-content">
-                    <p>Homeopathy is a holistic system of medicine that treats the individual as a whole, rather than just treating the symptoms of a disease.</p>
-                    <h4>Key Principles:</h4>
-                    <ul>
-                        <li><strong>Like Cures Like:</strong> A substance that causes symptoms in a healthy person can cure similar symptoms in a sick person.</li>
-                        <li><strong>Minimum Dose:</strong> The lower the dose, the greater its effectiveness.</li>
-                        <li><strong>Individual Treatment:</strong> Each person is treated as a unique individual.</li>
-                        <li><strong>Holistic Approach:</strong> Physical, mental, and emotional aspects are all considered.</li>
-                    </ul>
-                    <h4>Benefits:</h4>
-                    <ul>
-                        <li>Natural and safe with minimal side effects</li>
-                        <li>Effective for both acute and chronic conditions</li>
-                        <li>Boosts the body's natural healing abilities</li>
-                        <li>Suitable for all age groups</li>
-                    </ul>
-                </div>
-                <button class="close-btn" onclick="hideInfo()">Close</button>
-            </section>
+            <div class="category-tabs">
+                <div class="category-tab active" onclick="filterProducts('all')">All Products</div>
+                <div class="category-tab" onclick="filterProducts('homeopathic')">Homeopathic</div>
+                <div class="category-tab" onclick="filterProducts('cosmetic')">Cosmetic</div>
+            </div>
+
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded here -->
+            </div>
         </main>
 
-        <footer>
-            <p>&copy; 2026 Shankar Homeo Stroes. All rights reserved.</p>
-        </footer>
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="window.location.href='index.html'">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='cart.html'">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-label">Cart</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='my-orders.html'">
+                <span class="nav-icon">📦</span>
+                <span class="nav-label">My Orders</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='my-account.html'">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Account</span>
+            </div>
+        </nav>
     </div>
 
-    <script src="script.js"></script>
+    <script src="products.js"></script>
 </body>
 </html>

@@ -3,32 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - Shankar Homeo Stores</title>
+    <title>My Account - Shankar Homeo Stores</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="products.css">
 </head>
 <body>
     <div class="mobile-app">
         <header class="app-header">
-            <h1>🏪 Shankar Homeo Stores</h1>
+            <h1>👤 My Account</h1>
         </header>
 
         <main class="app-content">
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="🔍 Search for medicines, brands, or categories..." onkeyup="searchProducts()">
-            <div class="cart-icon" onclick="window.location.href='cart.html'">
-                🛒 <span id="cartCount">0</span>
-            </div>
-        </div>
-
-            <div class="category-tabs">
-                <div class="category-tab active" onclick="filterProducts('all')">All Products</div>
-                <div class="category-tab" onclick="filterProducts('homeopathic')">Homeopathic</div>
-                <div class="category-tab" onclick="filterProducts('cosmetic')">Cosmetic</div>
-            </div>
-
-            <div class="products-grid" id="productsGrid">
-                <!-- Products will be loaded here -->
+            <div id="accountContent">
+                <!-- Account content will be loaded here -->
             </div>
         </main>
 
@@ -45,13 +32,13 @@
                 <span class="nav-icon">📦</span>
                 <span class="nav-label">My Orders</span>
             </div>
-            <div class="nav-item" onclick="window.location.href='my-account.html'">
+            <div class="nav-item active" onclick="window.location.href='my-account.html'">
                 <span class="nav-icon">👤</span>
                 <span class="nav-label">Account</span>
             </div>
         </nav>
     </div>
 
-    <script src="products.js"></script>
+    <script src="my-account.js"></script>
 </body>
 </html>

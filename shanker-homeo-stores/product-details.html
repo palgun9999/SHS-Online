@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Shankar Homeo Stores</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="products.css">
+    <style>
+        .product-details-container {
+            padding: 1rem;
+            padding-bottom: 80px;
+        }
+
+        .back-btn {
+            background: #006064;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .main-image-container {
+            width: 100%;
+            height: 300px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail:hover,
+        .thumbnail.active {
+            border-color: #00838f;
+            transform: scale(1.05);
+        }
+
+        .product-details-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #006064;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-brand {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .detail-section h4 {
+            color: #006064;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .stock-status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .stock-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .stock-low {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .stock-out {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .add-to-cart-btn {
+            flex: 1;
+            padding: 1rem;
+            background: linear-gradient(135deg, #00838f 0%, #006064 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 131, 143, 0.4);
+        }
+
+        .add-to-cart-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-to-products-btn {
+            padding: 1rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .main-image-container {
+                height: 250px;
+            }
+
+            .thumbnail {
+                width: 60px;
+                height: 60px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .detail-name {
+                font-size: 1.3rem;
+            }
+
+            .detail-price {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-app">
+        <header class="app-header">
+            <h1>📦 Product Details</h1>
+        </header>
+
+        <main class="app-content">
+            <div class="product-details-container">
+                <button class="back-btn" onclick="window.location.href='index.html'">← Back to Products</button>
+
+                <div id="productDetails">
+                    <!-- Product details will be loaded here -->
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="window.location.href='index.html'">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='cart.html'">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-label">Cart</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='my-orders.html'">
+                <span class="nav-icon">📦</span>
+                <span class="nav-label">My Orders</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='my-account.html'">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Account</span>
+            </div>
+        </nav>
+    </div>
+
+    <script src="product-details.js"></script>
+</body>
+</html>

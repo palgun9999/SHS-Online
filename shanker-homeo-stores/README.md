@@ -1,11 +1,11 @@
-# Shankar Homeo Stroes Website
+# Shankar Homeo Stores Website
 
 A comprehensive homeopathic retail store management system with employee and customer portals.
 
 ## Features
 
 ### Landing Page
-- Welcome message for Shankar Homeo Stroes
+- Welcome message for Shankar Homeo Stores
 - Information button with details about homeopathy
 - Login button in the top right corner
 - Professional purple gradient design

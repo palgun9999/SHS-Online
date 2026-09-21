@@ -2,6 +2,43 @@
 let users = JSON.parse(localStorage.getItem('shankerUsers')) || [];
 let currentUser = null;
 
+// Initialize with pre-configured owner account
+function initializeOwnerAccount() {
+    const ownerEmail = 'shankarhomeostores@gmail.com';
+    const existingOwner = users.find(u => u.email === ownerEmail);
+
+    if (!existingOwner) {
+        const ownerAccount = {
+            name: 'J D SHANKAR',
+            email: ownerEmail,
+            mobile: '9844874544',
+            password: 'SHS#123',
+            accountType: 'owner',
+            roles: ['owner', 'customer', 'employee'], // Multi-role owner
+            approved: true,
+            rejected: false,
+            createdAt: new Date().toISOString()
+        };
+        users.push(ownerAccount);
+        localStorage.setItem('shankerUsers', JSON.stringify(users));
+        console.log('Pre-configured owner account created');
+    } else {
+        // Update existing owner account with correct details and multi-role
+        existingOwner.name = 'J D SHANKAR';
+        existingOwner.mobile = '9844874544';
+        existingOwner.roles = ['owner', 'customer', 'employee'];
+        existingOwner.approved = true;
+        existingOwner.rejected = false;
+        localStorage.setItem('shankerUsers', JSON.stringify(users));
+        console.log('Owner account updated with multi-role capabilities');
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeOwnerAccount();
+});
+
 // Tab switching
 function switchTab(tab) {
     const tabs = document.querySelectorAll('.tab');
@@ -56,14 +93,10 @@ function handleLogin() {
     errorDiv.style.display = 'none';
 
     // Redirect based on user type
-    if (user.userType === 'owner') {
-        if (user.approved) {
-            window.location.href = 'owner-dashboard.html';
-        } else {
-            alert('Your account is pending approval.');
-            window.location.href = 'index.html';
-        }
-    } else if (user.userType === 'employee') {
+    if (user.accountType === 'owner') {
+        // Owner can access all dashboards, default to owner dashboard
+        window.location.href = 'owner-dashboard.html';
+    } else if (user.accountType === 'employee') {
         if (user.approved) {
             window.location.href = 'employee-dashboard.html';
         } else {
@@ -71,7 +104,7 @@ function handleLogin() {
             window.location.href = 'index.html';
         }
     } else {
-        alert('Customer dashboard will be available soon!');
+        // Customer goes to homepage
         window.location.href = 'index.html';
     }
 }
@@ -82,7 +115,7 @@ function handleRegistration() {
     const email = document.getElementById('regEmail').value;
     const mobile = document.getElementById('mobileNumber').value;
     const password = document.getElementById('regPassword').value;
-    const userType = document.getElementById('userType').value;
+    const accountType = document.getElementById('userType').value;
 
     if (!fullName || !email || !mobile || !password) {
         showError('Please fill in all fields');
@@ -110,23 +143,14 @@ function handleRegistration() {
         return;
     }
 
-    // Check if owner already exists
-    if (userType === 'owner') {
-        const existingOwner = users.find(u => u.userType === 'owner');
-        if (existingOwner) {
-            showError('An owner account already exists. Only one owner is allowed.');
-            return;
-        }
-    }
-
     // Create user
     const newUser = {
-        fullName,
+        name: fullName,
         email,
         mobile,
         password,
-        userType,
-        approved: userType === 'owner' || userType === 'customer', // Auto-approve owners and customers
+        accountType,
+        approved: accountType === 'customer', // Auto-approve customers, employees need approval
         rejected: false,
         createdAt: new Date().toISOString()
     };
@@ -136,9 +160,7 @@ function handleRegistration() {
 
     showSuccess('Account created successfully!');
 
-    if (userType === 'owner') {
-        alert('Your owner account has been created successfully! You can now login to manage the store.');
-    } else if (userType === 'employee') {
+    if (accountType === 'employee') {
         alert('Your employee account has been created and is pending approval from the owner.');
     } else {
         alert('Your customer account has been created successfully!');

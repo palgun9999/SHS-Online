@@ -18,7 +18,7 @@
 
 ### Step 3: Get Your URL
 1. After upload, Netlify will show you your new site
-2. Your URL will look like: `https://shanker-homeo-stroes-xxxxx.netlify.app`
+2. Your URL will look like: `https://shanker-homeo-stores-xxxxx.netlify.app`
 3. Copy this URL - this is your live website address!
 
 ### Step 4: Test Your Website
@@ -39,9 +39,9 @@ This will open Netlify and guide you through the process.
 
 ## 📱 Your Website Will Be Available At:
 
-**Netlify URL:** `https://shanker-homeo-stroes-xxxxx.netlify.app` (auto-generated)
+**Netlify URL:** `https://shanker-homeo-stores-xxxxx.netlify.app` (auto-generated)
 
-**Custom URL (Optional):** You can set up `shankerhomeostroes.netlify.app` for free
+**Custom URL (Optional):** You can set up `shankerhomeostores.netlify.app` for free
 
 ## ⚡ Quick Start:
 
@@ -51,7 +51,7 @@ This will open Netlify and guide you through the process.
 
 ## 🎯 What Users Will See:
 
-- Your Shankar Homeo Stroes website
+- Your Shankar Homeo Stores website
 - All features working (registration, dashboards, stock management)
 - Mobile-responsive design
 - Available 24/7 online

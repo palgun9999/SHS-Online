@@ -26,7 +26,7 @@
 
 4. **Create Email Template:**
    ```
-   Subject: Your Verification Code - Shankar Homeo Stroes
+   Subject: Your Verification Code - Shankar Homeo Stores
 
    Body:
    Hello {{to_name}},
@@ -35,7 +35,7 @@
 
    This code will expire in 10 minutes.
 
-   From: Shankar Homeo Stroes
+   From: Shankar Homeo Stores
    Email: shankarhomeostores@gmail.com
    ```
 
@@ -75,7 +75,7 @@
            },
            body: JSON.stringify({
                route: 'q',
-               message: `Your verification code is: ${otp} - Shankar Homeo Stroes`,
+               message: `Your verification code is: ${otp} - Shankar Homeo Stores`,
                language: 'english',
                flash: 0,
                numbers: mobile
@@ -104,7 +104,7 @@
 
    async function sendSMSOTP(mobile, otp) {
        await client.messages.create({
-           body: `Your verification code is: ${otp} - Shankar Homeo Stroes`,
+           body: `Your verification code is: ${otp} - Shankar Homeo Stores`,
            from: '+918970074390',
            to: mobile
        });

@@ -1,0 +1,190 @@
+/* Products Page Styles */
+.category-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    padding: 0 1rem;
+}
+
+.category-tab {
+    padding: 0.6rem 1.2rem;
+    background: white;
+    border: 2px solid #00838f;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #006064;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.category-tab.active {
+    background: #00838f;
+    color: white;
+}
+
+.category-tab:hover {
+    background: #0097a7;
+    color: white;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: 0 1rem;
+}
+
+.product-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.product-image-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 5px;
+    z-index: 10;
+}
+
+.indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.indicator.active {
+    background: #00838f;
+    transform: scale(1.2);
+    border-color: #006064;
+}
+
+.product-info {
+    padding: 1rem;
+}
+
+.product-category {
+    font-size: 0.75rem;
+    color: #4a7c23;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+}
+
+.product-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #006064;
+    margin-bottom: 0.3rem;
+}
+
+.product-brand {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.3rem;
+}
+
+.product-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ff6b6b;
+    margin-bottom: 0.5rem;
+}
+
+.product-location {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 0.5rem;
+}
+
+.add-to-cart-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(135deg, #00838f 0%, #006064 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.add-to-cart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 131, 143, 0.4);
+}
+
+.add-to-cart-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.status-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.status-homeopathic {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-cosmetic {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .category-tabs {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .category-tab {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+}

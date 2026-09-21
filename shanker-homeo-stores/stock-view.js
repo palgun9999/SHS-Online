@@ -45,13 +45,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    if (currentUser.userType === 'customer') {
+    // Allow owners and employees to access stock management
+    if (currentUser.accountType === 'customer' && !currentUser.roles?.includes('owner')) {
         alert('Customers do not have access to stock management.');
         window.location.href = 'index.html';
         return;
     }
 
-    document.getElementById('userName').textContent = currentUser.fullName;
+    document.getElementById('userName').textContent = currentUser.name;
     loadStockData();
     updateStats();
 });
@@ -178,9 +179,9 @@ function searchStock() {
 
 // Go back to dashboard
 function goBack() {
-    if (currentUser.userType === 'owner') {
+    if (currentUser.accountType === 'owner') {
         window.location.href = 'owner-dashboard.html';
-    } else if (currentUser.userType === 'employee') {
+    } else if (currentUser.accountType === 'employee') {
         window.location.href = 'employee-dashboard.html';
     } else {
         window.location.href = 'index.html';

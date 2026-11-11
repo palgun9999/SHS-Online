@@ -1,43 +1,113 @@
-// Simulated database storage
-let users = JSON.parse(localStorage.getItem('shankerUsers')) || [];
-let currentUser = null;
+// Backend API configuration
+const API_URL = API_CONFIG.apiUrl;
 
-// Initialize with pre-configured owner account
-function initializeOwnerAccount() {
-    const ownerEmail = 'shankarhomeostores@gmail.com';
-    const existingOwner = users.find(u => u.email === ownerEmail);
+// Fallback to localStorage if backend is not available
+const USE_LOCALSTORAGE_FALLBACK = !API_URL;
 
-    if (!existingOwner) {
-        const ownerAccount = {
-            name: 'J D SHANKAR',
-            email: ownerEmail,
-            mobile: '9844874544',
-            password: 'SHS#123',
-            accountType: 'owner',
-            roles: ['owner', 'customer', 'employee'], // Multi-role owner
-            approved: true,
-            rejected: false,
-            createdAt: new Date().toISOString()
-        };
-        users.push(ownerAccount);
-        localStorage.setItem('shankerUsers', JSON.stringify(users));
-        console.log('Pre-configured owner account created');
-    } else {
-        // Update existing owner account with correct details and multi-role
-        existingOwner.name = 'J D SHANKAR';
-        existingOwner.mobile = '9844874544';
-        existingOwner.roles = ['owner', 'customer', 'employee'];
-        existingOwner.approved = true;
-        existingOwner.rejected = false;
-        localStorage.setItem('shankerUsers', JSON.stringify(users));
-        console.log('Owner account updated with multi-role capabilities');
+// Owner account credentials specification
+const DEFAULT_OWNER_ACCOUNT = {
+    id: 1,
+    name: 'J D Shankar',
+    email: 'shankarhomeostores@gmail.com',
+    mobile: '9844874544',
+    password: 'SHS#123',
+    accountType: 'owner',
+    type: 'owner',
+    roles: ['owner', 'customer', 'employee'],
+    approved: true,
+    is_approved: true,
+    createdAt: new Date().toISOString()
+};
+
+// Reset all accounts and ensure only the owner account exists
+function resetAllAccounts() {
+    // Delete all existing accounts and set only the single owner account
+    localStorage.setItem('users', JSON.stringify([DEFAULT_OWNER_ACCOUNT]));
+    localStorage.removeItem('shankerUsers');
+
+    // If an active session is not the owner, clear it
+    const active = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    if (active && active.email !== DEFAULT_OWNER_ACCOUNT.email) {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
+    }
+
+    console.log('All previous accounts deleted. Owner account created:', DEFAULT_OWNER_ACCOUNT.email);
+    return DEFAULT_OWNER_ACCOUNT;
+}
+
+// Initialize owner account and clean slate
+async function initializeOwnerAccount() {
+    // Perform reset to delete old accounts and ensure single owner exists
+    resetAllAccounts();
+
+    if (USE_LOCALSTORAGE_FALLBACK) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/auth/check-owner`);
+        const data = await response.json();
+        if (!data.exists) {
+            // Create owner account in backend database
+            await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(DEFAULT_OWNER_ACCOUNT)
+            });
+            console.log('Pre-configured owner account created in database');
+        }
+    } catch (error) {
+        console.log('Owner account initialization check skipped');
     }
 }
+
+// Current user
+let currentUser = null;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeOwnerAccount();
+    checkAuthStatus();
+
+    // Show notification if using localStorage fallback
+    if (USE_LOCALSTORAGE_FALLBACK) {
+        console.log('Running in localStorage fallback mode - backend not available');
+        // Optional: Show a notification to the user
+        // alert('Note: Running in offline mode. Some features may be limited.');
+    }
 });
+
+// Check authentication status
+async function checkAuthStatus() {
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('currentUser');
+
+    if (USE_LOCALSTORAGE_FALLBACK) {
+        // Use localStorage fallback
+        if (storedUser) {
+            currentUser = JSON.parse(storedUser);
+            updateUIForLoggedInUser();
+        }
+        return;
+    }
+
+    if (token) {
+        try {
+            const response = await fetch(`${API_URL}/auth/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                currentUser = data.user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUIForLoggedInUser();
+            }
+        } catch (error) {
+            console.log('Token validation failed');
+        }
+    }
+}
 
 // Tab switching
 function switchTab(tab) {
@@ -56,7 +126,7 @@ function switchTab(tab) {
 }
 
 // Handle login
-function handleLogin() {
+async function handleLogin() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     const errorDiv = document.getElementById('loginError');
@@ -73,44 +143,90 @@ function handleLogin() {
         return;
     }
 
-    const user = users.find(u => u.email === email);
-
-    if (!user) {
-        errorDiv.textContent = 'No account found with this email. Please check your email or create an account.';
-        errorDiv.style.display = 'block';
+    // Use localStorage fallback if backend is not available
+    if (USE_LOCALSTORAGE_FALLBACK) {
+        handleLocalStorageLogin(email, password, errorDiv);
         return;
     }
 
-    if (user.password !== password) {
-        errorDiv.textContent = 'Incorrect password. Please check your password and try again.';
-        errorDiv.style.display = 'block';
-        return;
-    }
+    try {
+        console.log('Attempting login to:', `${API_URL}/auth/login`);
+        console.log('Email:', email);
 
-    // Login successful
-    currentUser = user;
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    errorDiv.style.display = 'none';
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
 
-    // Redirect based on user type
-    if (user.accountType === 'owner') {
-        // Owner can access all dashboards, default to owner dashboard
-        window.location.href = 'owner-dashboard.html';
-    } else if (user.accountType === 'employee') {
-        if (user.approved) {
-            window.location.href = 'employee-dashboard.html';
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (response.ok) {
+            // Login successful
+            currentUser = data.user;
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+            errorDiv.style.display = 'none';
+
+            // Redirect based on user type
+            if (data.user.accountType === 'owner') {
+                window.location.href = 'owner-dashboard.html';
+            } else if (data.user.accountType === 'employee') {
+                if (data.user.approved) {
+                    window.location.href = 'employee-dashboard.html';
+                } else {
+                    alert('Your employee account is pending approval from the owner.');
+                    window.location.href = 'index.html';
+                }
+            } else {
+                window.location.href = 'index.html';
+            }
         } else {
-            alert('Your employee account is pending approval from the owner.');
+            errorDiv.textContent = data.message || data.error || 'Login failed. Please check your credentials.';
+            errorDiv.style.display = 'block';
+        }
+    } catch (error) {
+        console.warn('Backend server not reachable, attempting offline/local login:', error.message);
+        handleLocalStorageLogin(email, password, errorDiv);
+    }
+}
+
+// Handle localStorage login (fallback when backend is not available)
+function handleLocalStorageLogin(email, password, errorDiv) {
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.email === email && u.password === password);
+
+    if (user) {
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem('token', 'owner-token-' + Date.now());
+        errorDiv.style.display = 'none';
+
+        // Redirect based on user type
+        if (user.accountType === 'owner') {
+            window.location.href = 'owner-dashboard.html';
+        } else if (user.accountType === 'employee') {
+            if (user.approved) {
+                window.location.href = 'employee-dashboard.html';
+            } else {
+                alert('Your employee account is pending approval from the owner.');
+                window.location.href = 'index.html';
+            }
+        } else {
             window.location.href = 'index.html';
         }
     } else {
-        // Customer goes to homepage
-        window.location.href = 'index.html';
+        errorDiv.textContent = 'Invalid email or password';
+        errorDiv.style.display = 'block';
     }
 }
 
 // Handle registration
-function handleRegistration() {
+async function handleRegistration() {
     const fullName = document.getElementById('fullName').value;
     const email = document.getElementById('regEmail').value;
     const mobile = document.getElementById('mobileNumber').value;
@@ -137,26 +253,81 @@ function handleRegistration() {
         return;
     }
 
-    // Check if user already exists
-    if (users.find(u => u.email === email)) {
-        showError('An account with this email already exists');
+    // Use localStorage fallback if backend is not available
+    if (USE_LOCALSTORAGE_FALLBACK) {
+        handleLocalStorageRegistration(fullName, email, mobile, password, accountType);
         return;
     }
 
-    // Create user
+    try {
+        console.log('Attempting registration to:', `${API_URL}/auth/register`);
+        console.log('Account Type:', accountType);
+
+        const response = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: fullName,
+                email,
+                mobile,
+                password,
+                accountType
+            })
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (response.ok) {
+            showSuccess('Account created successfully!');
+
+            if (accountType === 'employee') {
+                alert('Your employee account has been created and is pending approval from the owner.');
+            } else {
+                alert('Your customer account has been created successfully!');
+            }
+
+            // Reset form and go to login
+            setTimeout(() => {
+                resetRegistrationForm();
+                switchTab('login');
+            }, 2000);
+        } else {
+            showError(data.message || data.error || 'Registration failed. Please try again.');
+        }
+    } catch (error) {
+        console.warn('Backend server not reachable, attempting offline/local registration:', error.message);
+        handleLocalStorageRegistration(fullName, email, mobile, password, accountType);
+    }
+}
+
+// Handle localStorage registration (fallback when backend is not available)
+function handleLocalStorageRegistration(fullName, email, mobile, password, accountType) {
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+    // Check if user already exists
+    if (users.some(u => u.email === email)) {
+        showError('User with this email already exists');
+        return;
+    }
+
+    // Create new user
     const newUser = {
+        id: users.length + 1,
         name: fullName,
         email,
         mobile,
         password,
         accountType,
-        approved: accountType === 'customer', // Auto-approve customers, employees need approval
-        rejected: false,
-        createdAt: new Date().toISOString()
+        approved: accountType === 'customer' || accountType === 'owner', // Auto-approve customers and owners
+        roles: [accountType]
     };
 
     users.push(newUser);
-    localStorage.setItem('shankerUsers', JSON.stringify(users));
+    localStorage.setItem('users', JSON.stringify(users));
 
     showSuccess('Account created successfully!');
 
@@ -209,4 +380,21 @@ function showError(message) {
 function hideMessages() {
     document.getElementById('successMessage').style.display = 'none';
     document.getElementById('errorMessage').style.display = 'none';
+}
+
+function updateUIForLoggedInUser() {
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.textContent = 'Logout';
+        loginBtn.onclick = function() {
+            logout();
+        };
+    }
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    currentUser = null;
+    window.location.href = 'index.html';
 }

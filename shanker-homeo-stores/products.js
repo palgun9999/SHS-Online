@@ -1,363 +1,322 @@
-// Get stock data from localStorage
-function getStockData() {
-    const storedData = localStorage.getItem('stockData');
-    if (storedData) {
-        const data = JSON.parse(storedData);
-        // Check if data has the new structure with images array
-        if (data.length > 0 && data[0].images) {
-            return data;
-        }
-        // Old structure detected, convert to new structure
-        return convertToNewStructure(data);
-    }
+// Backend API configuration
+const API_URL = (typeof API_CONFIG !== 'undefined' && API_CONFIG) ? API_CONFIG.apiUrl : null;
 
-    // Sample product data with images and categories
-    const sampleData = [
-        {
-            id: 1,
-            medicine_name: "Arnica Montana",
-            brand_name: "Dr. Reckeweg",
-            batch_no: "ARN001",
-            mgf_date: "2024-01-15",
-            exp_date: "2027-01-15",
-            quantity: 50,
-            price: 150,
-            location: "Shelf A-1",
-            note: "Best seller",
-            category: "homeopathic",
-            images: ["https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400", "https://images.unsplash.com/photo-1587854692157-c309b9d1eb44?w=400"]
-        },
-        {
-            id: 2,
-            medicine_name: "Nux Vomica",
-            brand_name: "SBL",
-            batch_no: "NUX002",
-            mgf_date: "2024-02-20",
-            exp_date: "2027-02-20",
-            quantity: 8,
-            price: 120,
-            location: "Shelf A-2",
-            note: "Low stock, reorder soon",
-            category: "homeopathic",
-            images: ["https://images.unsplash.com/photo-1587854692157-c309b9d1eb44?w=400"]
-        },
-        {
-            id: 3,
-            medicine_name: "Rhus Tox",
-            brand_name: "Schwabe",
-            batch_no: "RHS003",
-            mgf_date: "2024-03-10",
-            exp_date: "2027-03-10",
-            quantity: 0,
-            price: 140,
-            location: "Shelf B-1",
-            note: "Out of stock",
-            category: "homeopathic",
-            images: ["https://images.unsplash.com/photo-1598445542092-33f825e0a8d5?w=400"]
-        },
-        {
-            id: 4,
-            medicine_name: "Aloe Vera Gel",
-            brand_name: "Himalaya",
-            batch_no: "ALV001",
-            mgf_date: "2024-04-05",
-            exp_date: "2026-04-05",
-            quantity: 35,
-            price: 180,
-            location: "Shelf C-1",
-            note: "Popular cosmetic",
-            category: "cosmetic",
-            images: ["https://images.unsplash.com/photo-1556228720-195a672e8a038?w=400", "https://images.unsplash.com/photo-1556228847-44c9c760d664?w=400"]
-        },
-        {
-            id: 5,
-            medicine_name: "Neem Face Wash",
-            brand_name: "Himalaya",
-            batch_no: "NMF002",
-            mgf_date: "2024-05-12",
-            exp_date: "2026-05-12",
-            quantity: 25,
-            price: 95,
-            location: "Shelf C-2",
-            note: "Skin care",
-            category: "cosmetic",
-            images: ["https://images.unsplash.com/photo-1556228847-44c9c760d664?w=400"]
-        },
-        {
-            id: 6,
-            medicine_name: "Bryonia",
-            brand_name: "Dr. Reckeweg",
-            batch_no: "BRY004",
-            mgf_date: "2024-04-05",
-            exp_date: "2027-04-05",
-            quantity: 35,
-            price: 130,
-            location: "Shelf B-2",
-            note: "",
-            category: "homeopathic",
-            images: ["https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b0?w=400"]
-        },
-        {
-            id: 7,
-            medicine_name: "Turmeric Cream",
-            brand_name: "Himalaya",
-            batch_no: "TRC003",
-            mgf_date: "2024-06-18",
-            exp_date: "2026-06-18",
-            quantity: 40,
-            price: 220,
-            location: "Shelf C-3",
-            note: "Anti-aging",
-            category: "cosmetic",
-            images: ["https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400", "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400"]
-        },
-        {
-            id: 8,
-            medicine_name: "Sulphur",
-            brand_name: "SBL",
-            batch_no: "SUL008",
-            mgf_date: "2024-08-30",
-            exp_date: "2027-08-30",
-            quantity: 30,
-            price: 135,
-            location: "Shelf D-2",
-            note: "",
-            category: "homeopathic",
-            images: ["https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400"]
-        },
-        {
-            id: 9,
-            medicine_name: "Vitamin C Serum",
-            brand_name: "Plum",
-            batch_no: "VCS004",
-            mgf_date: "2024-07-22",
-            exp_date: "2026-07-22",
-            quantity: 20,
-            price: 450,
-            location: "Shelf C-4",
-            note: "Brightening",
-            category: "cosmetic",
-            images: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400"]
-        },
-        {
-            id: 10,
-            medicine_name: "Calcarea Carb",
-            brand_name: "Schwabe",
-            batch_no: "CAL009",
-            mgf_date: "2024-09-14",
-            exp_date: "2027-09-14",
-            quantity: 45,
-            price: 155,
-            location: "Shelf E-1",
-            note: "General health",
-            category: "homeopathic",
-            images: ["https://images.unsplash.com/photo-1551076805-e1869033e561?w=400"]
-        }
-    ];
+// Fallback to localStorage if backend is not available
+const USE_LOCALSTORAGE_FALLBACK = !API_URL;
 
-    localStorage.setItem('stockData', JSON.stringify(sampleData));
-    return sampleData;
-}
+// State management for filters
+let currentCategory = 'all';
+let currentSearchTerm = '';
 
-// Convert old structure to new structure
-function convertToNewStructure(oldData) {
-    return oldData.map(item => ({
-        ...item,
-        images: item.image ? [item.image] : ['https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400'] // Convert single image to array
-    }));
-}
-
-// Convert old structure to new structure
-function convertToNewStructure(oldData) {
-    return oldData.map(item => ({
-        ...item,
-        category: 'homeopathic', // Default to homeopathic for old data
-        image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400' // Default image
-    }));
-}
-
-let allProducts = getStockData();
-let filteredProducts = allProducts;
-let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    loadProducts();
-    updateCartCount();
-    updateNavButtons();
-});
-
-// Update navigation buttons based on login state
-function updateNavButtons() {
-    currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const ordersBtn = document.getElementById('ordersBtn');
-    const loginBtn = document.getElementById('loginBtn');
-
-    if (currentUser) {
-        if (ordersBtn) ordersBtn.style.display = 'block';
-        if (loginBtn) {
-            loginBtn.textContent = '👤 Logout';
-            loginBtn.onclick = function() {
-                localStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
-            };
-        }
-    } else {
-        if (ordersBtn) ordersBtn.style.display = 'none';
-        if (loginBtn) {
-            loginBtn.textContent = '👤 Login';
-            loginBtn.onclick = function() {
-                window.location.href = 'login.html';
-            };
-        }
+// Initialize localStorage products if not exists
+function initializeLocalStorageProducts() {
+    if (!localStorage.getItem('products')) {
+        const defaultProducts = [
+            {
+                id: 1,
+                medicine_name: 'Arnica Montana 200 CH',
+                brand_name: 'Dr. Reckeweg',
+                batch_number: 'ARN001',
+                manufacturing_date: '2024-01-15',
+                expiry_date: '2026-01-15',
+                quantity: 50,
+                price: 120,
+                location: 'Shelf A1',
+                note: 'Effective for muscle pain, bruises, and soreness',
+                category: 'homeopathic',
+                images: ['https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60']
+            },
+            {
+                id: 2,
+                medicine_name: 'Pure Aloe Vera Skin Gel',
+                brand_name: 'Herbal Care',
+                batch_number: 'ALO002',
+                manufacturing_date: '2024-02-20',
+                expiry_date: '2026-02-20',
+                quantity: 30,
+                price: 250,
+                location: 'Shelf B2',
+                note: 'Natural skin moisturizing and soothing formula',
+                category: 'cosmetic',
+                images: ['https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60']
+            },
+            {
+                id: 3,
+                medicine_name: 'Nux Vomica 30 CH',
+                brand_name: 'SBL',
+                batch_number: 'NUX003',
+                manufacturing_date: '2024-03-10',
+                expiry_date: '2026-03-10',
+                quantity: 75,
+                price: 85,
+                location: 'Shelf A3',
+                note: 'Relief from indigestion, gastric trouble, and bloating',
+                category: 'homeopathic',
+                images: ['https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=500&auto=format&fit=crop&q=60']
+            },
+            {
+                id: 4,
+                medicine_name: 'Calendula Antiseptic Cream',
+                brand_name: 'Dr. Reckeweg',
+                batch_number: 'CAL004',
+                manufacturing_date: '2024-04-05',
+                expiry_date: '2026-04-05',
+                quantity: 40,
+                price: 160,
+                location: 'Shelf B1',
+                note: 'Natural healing for cuts, burns, and dry cracked skin',
+                category: 'cosmetic',
+                images: ['https://images.unsplash.com/photo-1608248597359-0f4f9f75ecf4?w=500&auto=format&fit=crop&q=60']
+            }
+        ];
+        localStorage.setItem('products', JSON.stringify(defaultProducts));
     }
 }
 
-// Load products
-function loadProducts() {
-    const grid = document.getElementById('productsGrid');
-    grid.innerHTML = '';
+// Get stock data with automatic fallback
+async function getStockData() {
+    if (USE_LOCALSTORAGE_FALLBACK) {
+        initializeLocalStorageProducts();
+        return JSON.parse(localStorage.getItem('products') || '[]');
+    }
 
-    filteredProducts.forEach(product => {
-        const categoryClass = product.category === 'homeopathic' ? 'status-homeopathic' : 'status-cosmetic';
-        const categoryText = product.category === 'homeopathic' ? 'Homeopathic' : 'Cosmetic';
-
-        const images = product.images || (product.image ? [product.image] : ['https://via.placeholder.com/400x200?text=No+Image']);
-        const firstImage = images[0];
-
-        // Create image carousel HTML if multiple images
-        let imageCarouselHtml = '';
-        if (images.length > 1) {
-            imageCarouselHtml = `
-                <div class="image-indicators">
-                    ${images.map((_, index) => `<span class="indicator ${index === 0 ? 'active' : ''}" onclick="changeImage(${product.id}, ${index})"></span>`).join('')}
-                </div>
-            `;
+    try {
+        const response = await fetch(`${API_URL}/products`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.products && data.products.length > 0) {
+                return data.products;
+            }
         }
+    } catch (error) {
+        console.warn('Backend unavailable, using local product catalog:', error.message);
+    }
 
-        const card = `
-            <div class="product-card" data-product-id="${product.id}" onclick="viewProductDetails(${product.id})">
-                <div class="product-image-container">
-                    <img src="${firstImage}" alt="${product.medicine_name}" class="product-image" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" data-current-image="0">
-                    ${imageCarouselHtml}
-                </div>
-                <div class="product-info">
-                    <span class="status-badge ${categoryClass}">${categoryText}</span>
-                    <h3 class="product-name">${product.medicine_name}</h3>
-                    <p class="product-brand">${product.brand_name}</p>
-                    <p class="product-price">₹${product.price}</p>
-                    <p class="product-location">📍 ${product.location || 'N/A'}</p>
-                    <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart(${product.id})">🛒 Add to Cart</button>
-                </div>
+    initializeLocalStorageProducts();
+    return JSON.parse(localStorage.getItem('products') || '[]');
+}
+
+// Render products
+async function renderProducts(searchTerm = currentSearchTerm, categoryFilter = currentCategory) {
+    currentSearchTerm = searchTerm;
+    currentCategory = categoryFilter;
+
+    const products = await getStockData();
+    const productsContainer = document.getElementById('productsGrid') || document.getElementById('productsContainer');
+    
+    if (!productsContainer) return;
+
+    productsContainer.innerHTML = '';
+
+    let filteredProducts = products;
+
+    // Apply search filter
+    if (searchTerm) {
+        filteredProducts = filteredProducts.filter(product =>
+            (product.medicine_name && product.medicine_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (product.brand_name && product.brand_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (product.note && product.note.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+    }
+
+    // Apply category filter
+    if (categoryFilter !== 'all') {
+        filteredProducts = filteredProducts.filter(product =>
+            product.category === categoryFilter
+        );
+    }
+
+    if (filteredProducts.length === 0) {
+        productsContainer.innerHTML = `
+            <div style="text-align: center; padding: 3rem 1rem; color: #666; grid-column: 1 / -1;">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔍</div>
+                <h3>No medicines or products found</h3>
+                <p>Try searching for a different keyword or switch categories.</p>
             </div>
         `;
-        grid.innerHTML += card;
+        return;
+    }
+
+    filteredProducts.forEach((product, index) => {
+        const productCard = createProductCard(product, index);
+        productsContainer.appendChild(productCard);
     });
 }
 
-// Filter products by category
-function filterProducts(category) {
-    // Update active tab
-    document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
-    event.target.classList.add('active');
+// Create product card
+function createProductCard(product, index) {
+    const card = document.createElement('div');
+    card.className = 'product-card animate-fade-in';
+    card.style.animationDelay = `${index * 0.05}s`;
+    card.onclick = () => viewProductDetails(product.id);
 
-    if (category === 'all') {
-        filteredProducts = allProducts;
-    } else {
-        filteredProducts = allProducts.filter(product => product.category === category);
-    }
+    const mainImage = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://via.placeholder.com/300x200?text=No+Image');
+    const stockStatus = getStockStatus(product.quantity);
+    const categoryBadge = getCategoryBadge(product.category);
 
-    loadProducts();
+    card.innerHTML = `
+        <div class="product-image-container">
+            <img src="${mainImage}" alt="${product.medicine_name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+            <div class="product-badges">
+                ${categoryBadge}
+                ${stockStatus}
+            </div>
+        </div>
+        <div class="product-info">
+            <div class="product-category">${product.category}</div>
+            <div class="product-name">${product.medicine_name}</div>
+            <div class="product-brand">${product.brand_name}</div>
+            <div class="product-price">₹${product.price}</div>
+            <div class="product-location" style="color: #006064; font-size: 0.8rem;">✓ In Stock at Store</div>
+            <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart(${product.id})">
+                🛒 Add to Cart
+            </button>
+        </div>
+    `;
+
+    return card;
 }
 
-// Search products
-function searchProducts() {
-    const searchTerm = document.querySelector('.search-input').value.toLowerCase();
-    filteredProducts = allProducts.filter(product =>
-        product.medicine_name.toLowerCase().includes(searchTerm) ||
-        product.brand_name.toLowerCase().includes(searchTerm) ||
-        product.category.toLowerCase().includes(searchTerm)
-    );
-    loadProducts();
+// Get stock status badge
+function getStockStatus(quantity) {
+    if (quantity === 0) {
+        return '<span class="status-badge stock-badge out-of-stock" style="background: #ffebee; color: #c62828;">Out of Stock</span>';
+    } else if (quantity < 10) {
+        return '<span class="status-badge stock-badge low-stock" style="background: #fff8e1; color: #f57f17;">Low Stock</span>';
+    } else {
+        return '<span class="status-badge stock-badge in-stock" style="background: #e8f5e9; color: #2e7d32;">In Stock</span>';
+    }
+}
+
+// Get category badge
+function getCategoryBadge(category) {
+    if (category === 'homeopathic') {
+        return '<span class="status-badge status-homeopathic">Homeopathic</span>';
+    } else if (category === 'cosmetic') {
+        return '<span class="status-badge status-cosmetic">Cosmetic</span>';
+    }
+    return '';
+}
+
+// View product details
+async function viewProductDetails(productId) {
+    const products = await getStockData();
+    const product = products.find(p => p.id === productId);
+    if (product) {
+        localStorage.setItem('selectedProduct', JSON.stringify(product));
+    }
+    localStorage.setItem('selectedProductId', productId);
+    window.location.href = 'product-details.html';
 }
 
 // Add to cart
-function addToCart(productId) {
-    // Check if user is logged in
-    currentUser = JSON.parse(localStorage.getItem('currentUser'));
+async function addToCart(productId) {
+    const products = await getStockData();
+    const product = products.find(p => p.id === productId);
 
-    if (!currentUser) {
-        // Save intended action and redirect to login
-        localStorage.setItem('intendedAction', 'addToCart');
-        localStorage.setItem('intendedProductId', productId);
-        alert('Please login to add items to your cart');
-        window.location.href = 'login.html';
+    if (!product) {
+        alert('Product not found');
         return;
     }
 
-    // Check if product is in stock
-    const product = allProducts.find(p => p.id === productId);
     if (product.quantity === 0) {
-        alert('This product is currently out of stock');
+        alert('This product is out of stock');
         return;
     }
 
-    // Add to cart
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const existingItem = cart.find(item => item.id === productId);
+
     if (existingItem) {
-        existingItem.quantity += 1;
+        if (existingItem.quantity < product.quantity) {
+            existingItem.quantity += 1;
+        } else {
+            alert('Cannot add more than available stock');
+            return;
+        }
     } else {
-        const images = product.images || (product.image ? [product.image] : ['https://via.placeholder.com/100x100?text=No+Img']);
+        const images = product.images || (product.image ? [product.image] : []);
         cart.push({
             id: product.id,
             medicine_name: product.medicine_name,
+            brand_name: product.brand_name,
             price: product.price,
             quantity: 1,
-            images: images
+            images: images,
+            maxQuantity: product.quantity
         });
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
-    alert('Added to cart!');
+    alert('Product added to cart!');
 }
 
 // Update cart count
 function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
     const cartCountElements = document.querySelectorAll('#cartCount');
-    cartCountElements.forEach(element => {
-        element.textContent = cartCount;
+    cartCountElements.forEach(el => {
+        el.textContent = cartCount;
     });
 }
 
-// View product details
-function viewProductDetails(productId) {
-    const product = allProducts.find(p => p.id === productId);
-    if (product) {
-        localStorage.setItem('selectedProduct', JSON.stringify(product));
-        window.location.href = 'product-details.html';
-    }
+// Search function called by onkeyup in index.html and products.html
+function searchProducts() {
+    const searchInput = document.getElementById('searchInput') || document.querySelector('.search-input');
+    const searchTerm = searchInput ? searchInput.value.trim() : '';
+    renderProducts(searchTerm, currentCategory);
 }
 
-// Change product image in carousel
-function changeImage(productId, imageIndex) {
-    const product = allProducts.find(p => p.id === productId);
-    if (!product) return;
+// Category filter function called by category tabs
+function filterProducts(category, element) {
+    currentCategory = category;
 
-    const images = product.images || [];
-    if (images.length <= imageIndex) return;
-
-    const card = document.querySelector(`[data-product-id="${productId}"]`);
-    if (card) {
-        const img = card.querySelector('.product-image');
-        img.src = images[imageIndex];
-
-        // Update indicators
-        const indicators = card.querySelectorAll('.indicator');
-        indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === imageIndex);
+    // Update active tab UI
+    const tabs = document.querySelectorAll('.category-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    if (element) {
+        element.classList.add('active');
+    } else {
+        tabs.forEach(tab => {
+            const text = tab.textContent.toLowerCase();
+            if (category === 'all' && text.includes('all')) tab.classList.add('active');
+            if (category === 'homeopathic' && text.includes('homeopathic')) tab.classList.add('active');
+            if (category === 'cosmetic' && text.includes('cosmetic')) tab.classList.add('active');
         });
     }
+
+    const searchInput = document.getElementById('searchInput') || document.querySelector('.search-input');
+    const searchTerm = searchInput ? searchInput.value.trim() : '';
+    renderProducts(searchTerm, currentCategory);
 }
+
+// Search functionality for input event listener
+function handleSearch() {
+    searchProducts();
+}
+
+// Category filter for select element
+function handleCategoryFilter() {
+    const categoryFilter = document.getElementById('categoryFilter')?.value || 'all';
+    filterProducts(categoryFilter);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    renderProducts();
+    updateCartCount();
+
+    // Add event listeners if elements exist
+    const searchInput = document.getElementById('searchInput') || document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
+
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', handleCategoryFilter);
+    }
+});

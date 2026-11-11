@@ -32,6 +32,16 @@
             margin-bottom: 1rem;
         }
 
+        .confirmation-header {
+            position: relative;
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
         .confirmation-header h1 {
             color: #006064;
             margin-bottom: 0.5rem;
@@ -40,6 +50,24 @@
         .confirmation-header p {
             color: #666;
             margin-bottom: 2rem;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 131, 143, 0.1);
+            border: 2px solid #00838f;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(0, 131, 143, 0.2);
+            transform: scale(1.1);
         }
 
         .order-details {
@@ -166,6 +194,7 @@
         <div class="confirmation-header">
             <h1>Order Placed Successfully!</h1>
             <p>Thank you for your order. Here are your order details.</p>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" style="position: absolute; top: 1rem; right: 1rem;">🌙</button>
         </div>
 
         <div class="order-details" id="orderDetails">
@@ -189,5 +218,6 @@
     </div>
 
     <script src="order-confirmation.js"></script>
+    <script src="theme.js"></script>
 </body>
 </html>

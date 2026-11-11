@@ -1,358 +1,471 @@
-// Get stock data from localStorage
-function getStockData() {
-    const storedData = localStorage.getItem('stockData');
-    if (storedData) {
-        const data = JSON.parse(storedData);
-        // Check if data has new structure (has medicine_name field)
-        if (data.length > 0 && data[0].medicine_name) {
-            // Check if it has category field (newest structure)
-            if (data[0].category !== undefined) {
-                return data;
-            }
-            // Old structure without category, convert it
-            return convertToNewStructure(data);
-        }
-        // Old structure detected, clear and use new structure
-        localStorage.removeItem('stockData');
-    }
+// Backend API configuration
+const API_URL = (typeof API_CONFIG !== 'undefined' && API_CONFIG) ? API_CONFIG.apiUrl : null;
 
-    // Sample stock data with new structure including multiple images and categories
-    const sampleData = [
-        { id: 1, medicine_name: "Arnica Montana", brand_name: "Dr. Reckeweg", batch_no: "ARN001", mgf_date: "2024-01-15", exp_date: "2027-01-15", quantity: 50, price: 150, location: "Shelf A-1", note: "Best seller", category: "homeopathic", images: ["https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400", "https://images.unsplash.com/photo-1587854692157-c309b9d1eb44?w=400"] },
-        { id: 2, medicine_name: "Nux Vomica", brand_name: "SBL", batch_no: "NUX002", mgf_date: "2024-02-20", exp_date: "2027-02-20", quantity: 8, price: 120, location: "Shelf A-2", note: "Low stock, reorder soon", category: "homeopathic", images: ["https://images.unsplash.com/photo-1587854692157-c309b9d1eb44?w=400"] },
-        { id: 3, medicine_name: "Rhus Tox", brand_name: "Schwabe", batch_no: "RHS003", mgf_date: "2024-03-10", exp_date: "2027-03-10", quantity: 0, price: 140, location: "Shelf B-1", note: "Out of stock", category: "homeopathic", images: ["https://images.unsplash.com/photo-1598445542092-33f825e0a8d5?w=400"] },
-        { id: 4, medicine_name: "Aloe Vera Gel", brand_name: "Himalaya", batch_no: "ALV001", mgf_date: "2024-04-05", exp_date: "2026-04-05", quantity: 35, price: 180, location: "Shelf C-1", note: "Popular cosmetic", category: "cosmetic", images: ["https://images.unsplash.com/photo-1556228720-195a672e8a038?w=400", "https://images.unsplash.com/photo-1556228847-44c9c760d664?w=400"] },
-        { id: 5, medicine_name: "Neem Face Wash", brand_name: "Himalaya", batch_no: "NMF002", mgf_date: "2024-05-12", exp_date: "2026-05-12", quantity: 25, price: 95, location: "Shelf C-2", note: "Skin care", category: "cosmetic", images: ["https://images.unsplash.com/photo-1556228847-44c9c760d664?w=400"] },
-        { id: 6, medicine_name: "Bryonia", brand_name: "Dr. Reckeweg", batch_no: "BRY004", mgf_date: "2024-04-05", exp_date: "2027-04-05", quantity: 35, price: 130, location: "Shelf B-2", note: "", category: "homeopathic", images: ["https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b0?w=400"] },
-        { id: 7, medicine_name: "Turmeric Cream", brand_name: "Himalaya", batch_no: "TRC003", mgf_date: "2024-06-18", exp_date: "2026-06-18", quantity: 40, price: 220, location: "Shelf C-3", note: "Anti-aging", category: "cosmetic", images: ["https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400", "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400"] },
-        { id: 8, medicine_name: "Sulphur", brand_name: "SBL", batch_no: "SUL008", mgf_date: "2024-08-30", exp_date: "2027-08-30", quantity: 30, price: 135, location: "Shelf D-2", note: "", category: "homeopathic", images: ["https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400"] },
-        { id: 9, medicine_name: "Vitamin C Serum", brand_name: "Plum", batch_no: "VCS004", mgf_date: "2024-07-22", exp_date: "2026-07-22", quantity: 20, price: 450, location: "Shelf C-4", note: "Brightening", category: "cosmetic", images: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400"] },
-        { id: 10, medicine_name: "Calcarea Carb", brand_name: "Schwabe", batch_no: "CAL009", mgf_date: "2024-09-14", exp_date: "2027-09-14", quantity: 45, price: 155, location: "Shelf E-1", note: "General health", category: "homeopathic", images: ["https://images.unsplash.com/photo-1551076805-e1869033e561?w=400"] }
-    ];
-
-    localStorage.setItem('stockData', JSON.stringify(sampleData));
-    return sampleData;
-}
-
-// Convert old structure to new structure
-function convertToNewStructure(oldData) {
-    return oldData.map(item => ({
-        ...item,
-        category: 'homeopathic', // Default to homeopathic
-        images: item.image ? [item.image] : ['https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400'] // Convert single image to array
-    }));
-}
-
-// Save stock data to localStorage
-function saveStockData(data) {
-    localStorage.setItem('stockData', JSON.stringify(data));
-}
-
-let stockData = getStockData();
 let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+let editingProductId = null;
+let allProductsCache = [];
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
+    currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const token = localStorage.getItem('token');
+
     if (!currentUser) {
         alert('Please login first.');
         window.location.href = 'login.html';
         return;
     }
 
-    // Allow owners and employees to access stock management
-    if (currentUser.accountType === 'customer' && !currentUser.roles?.includes('owner')) {
-        alert('Customers do not have access to stock management.');
+    // Allow owners and employees to access stock editing
+    const isOwnerOrEmp = currentUser.accountType === 'owner' || 
+                         currentUser.accountType === 'employee' || 
+                         currentUser.roles?.includes('employee') || 
+                         currentUser.roles?.includes('owner');
+
+    if (!isOwnerOrEmp) {
+        alert('Customers do not have access to stock editing.');
         window.location.href = 'index.html';
         return;
     }
 
-    document.getElementById('userName').textContent = currentUser.name;
+    const userNameEl = document.getElementById('userName');
+    if (userNameEl) userNameEl.textContent = currentUser.name;
     loadStockData();
 });
 
-// Load stock data
-function loadStockData() {
-    stockData = getStockData();
-    const tbody = document.getElementById('stockTableBody');
-    tbody.innerHTML = '';
+// Load stock data from backend or localStorage
+async function loadStockData() {
+    let products = [];
+    if (API_URL) {
+        try {
+            const response = await fetch(`${API_URL}/products`);
+            if (response.ok) {
+                const data = await response.json();
+                products = data.products || [];
+            }
+        } catch (error) {
+            console.warn('Backend unavailable, reading local stock catalog:', error.message);
+        }
+    }
 
-    stockData.forEach(item => {
-        const images = item.images || (item.image ? [item.image] : []);
-        const firstImage = images[0] || 'https://via.placeholder.com/50x50?text=No+Img';
+    if (!products || products.length === 0) {
+        products = JSON.parse(localStorage.getItem('products') || '[]');
+    }
 
-        const row = `
-            <tr>
-                <td><img src="${firstImage}" alt="${item.medicine_name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" onerror="this.src='https://via.placeholder.com/50x50?text=No+Img'"></td>
-                <td>${item.medicine_name}</td>
-                <td>${item.brand_name}</td>
-                <td>${item.batch_no}</td>
-                <td>${formatDate(item.mgf_date)}</td>
-                <td>${formatDate(item.exp_date)}</td>
-                <td>${item.quantity}</td>
-                <td>₹${item.price}</td>
-                <td><span class="status-badge ${item.category === 'homeopathic' ? 'status-homeopathic' : 'status-cosmetic'}">${item.category}</span></td>
-                <td>${item.location || 'N/A'}</td>
-                <td>${item.note || '-'}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="edit-btn" onclick="editProduct(${item.id})">Edit</button>
-                        <button class="delete-btn" onclick="deleteProduct(${item.id})">Delete</button>
-                    </div>
-                </td>
-            </tr>
+    // Default sample products if none exist
+    if (!products || products.length === 0) {
+        products = [
+            {
+                id: 1,
+                medicine_name: 'Arnica Montana 200 CH',
+                brand_name: 'Dr. Reckeweg',
+                batch_no: 'ARN001',
+                batch_number: 'ARN001',
+                mgf_date: '2024-01-15',
+                manufacturing_date: '2024-01-15',
+                exp_date: '2026-01-15',
+                expiry_date: '2026-01-15',
+                quantity: 50,
+                price: 120,
+                location: 'Shelf A1',
+                note: 'Effective for muscle pain and bruises',
+                category: 'homeopathic',
+                images: ['https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60']
+            },
+            {
+                id: 2,
+                medicine_name: 'Pure Aloe Vera Skin Gel',
+                brand_name: 'Herbal Care',
+                batch_no: 'ALO002',
+                batch_number: 'ALO002',
+                mgf_date: '2024-02-20',
+                manufacturing_date: '2024-02-20',
+                exp_date: '2026-02-20',
+                expiry_date: '2026-02-20',
+                quantity: 30,
+                price: 250,
+                location: 'Shelf B2',
+                note: 'Natural skin moisturizer',
+                category: 'cosmetic',
+                images: ['https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60']
+            }
+        ];
+        localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    allProductsCache = products;
+    renderStockTable(products);
+}
+
+// Render stock table matching all 12 columns in stock-edit.html
+function renderStockTable(products) {
+    const tableBody = document.getElementById('stockTableBody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '';
+
+    if (!products || products.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 2rem; color: #666;">No products found. Click "+ Add New Product" above to add medicines.</td></tr>';
+        return;
+    }
+
+    products.forEach(product => {
+        const row = document.createElement('tr');
+        const stockStatus = getStockStatus(product.quantity);
+        const mainImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || 'https://via.placeholder.com/50x50?text=No+Img');
+        const batch = product.batch_no || product.batch_number || 'N/A';
+        const mgf = formatDate(product.mgf_date || product.manufacturing_date);
+        const exp = formatDate(product.exp_date || product.expiry_date);
+
+        row.innerHTML = `
+            <td>
+                <img src="${mainImage}" alt="${product.medicine_name}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" onerror="this.src='https://via.placeholder.com/45x45?text=No+Img'">
+            </td>
+            <td><strong>${product.medicine_name}</strong></td>
+            <td>${product.brand_name || 'N/A'}</td>
+            <td><code>${batch}</code></td>
+            <td>${mgf}</td>
+            <td>${exp}</td>
+            <td><strong>${product.quantity}</strong></td>
+            <td>₹${product.price}</td>
+            <td><span class="status-badge" style="background: ${product.category === 'cosmetic' ? '#f3e5f5' : '#e0f2f1'}; color: ${product.category === 'cosmetic' ? '#6a1b9a' : '#006064'};">${product.category || 'homeopathic'}</span></td>
+            <td>${product.location || 'N/A'}</td>
+            <td>${product.note || '-'}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="edit-btn" onclick="editProduct(${product.id})">✏️ Edit</button>
+                    <button class="delete-btn" onclick="deleteProduct(${product.id})">🗑️ Delete</button>
+                </div>
+            </td>
         `;
-        tbody.innerHTML += row;
+        tableBody.appendChild(row);
     });
 }
 
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+// Get stock status helper
+function getStockStatus(quantity) {
+    if (quantity === 0) {
+        return { class: 'out-of-stock', text: 'Out of Stock' };
+    } else if (quantity < 10) {
+        return { class: 'low-stock', text: 'Low Stock' };
+    } else {
+        return { class: 'in-stock', text: 'In Stock' };
+    }
 }
 
-// Open add modal
+// Search stock
+function searchStock() {
+    const input = document.getElementById('searchInput');
+    const term = input ? input.value.trim().toLowerCase() : '';
+
+    if (!term) {
+        renderStockTable(allProductsCache);
+        return;
+    }
+
+    const filtered = allProductsCache.filter(p => {
+        const name = (p.medicine_name || '').toLowerCase();
+        const brand = (p.brand_name || '').toLowerCase();
+        const batch = (p.batch_no || p.batch_number || '').toLowerCase();
+        const loc = (p.location || '').toLowerCase();
+        const note = (p.note || '').toLowerCase();
+        return name.includes(term) || brand.includes(term) || batch.includes(term) || loc.includes(term) || note.includes(term);
+    });
+
+    renderStockTable(filtered);
+}
+
+// Open modal to add new product
 function openAddModal() {
-    document.getElementById('modalTitle').textContent = 'Add New Product';
-    document.getElementById('productForm').reset();
-    document.getElementById('productId').value = '';
-    document.getElementById('imagePreview').innerHTML = ''; // Clear image preview
-    document.getElementById('productModal').style.display = 'block';
-    // Prevent body scrolling on mobile
-    document.body.style.overflow = 'hidden';
+    editingProductId = null;
+    const form = document.getElementById('productForm');
+    if (form) form.reset();
+
+    const titleEl = document.getElementById('modalTitle');
+    if (titleEl) titleEl.textContent = 'Add New Product';
+
+    const preview = document.getElementById('imagePreview');
+    if (preview) preview.innerHTML = '';
+
+    const modal = document.getElementById('productModal');
+    if (modal) modal.style.display = 'block';
+}
+
+// Alias for add new product
+function addNewProduct() {
+    openAddModal();
 }
 
 // Edit product
-function editProduct(id) {
-    const product = stockData.find(item => item.id === id);
-    if (!product) return;
+async function editProduct(productId) {
+    let product = allProductsCache.find(p => String(p.id) === String(productId));
 
-    document.getElementById('modalTitle').textContent = 'Edit Product';
-    document.getElementById('productId').value = product.id;
-    document.getElementById('medicineName').value = product.medicine_name;
-    document.getElementById('brandName').value = product.brand_name;
-    document.getElementById('batchNo').value = product.batch_no;
-    document.getElementById('mgfDate').value = product.mgf_date;
-    document.getElementById('expDate').value = product.exp_date;
-    document.getElementById('quantity').value = product.quantity;
-    document.getElementById('price').value = product.price;
+    if (!product && API_URL) {
+        try {
+            const response = await fetch(`${API_URL}/products/${productId}`);
+            if (response.ok) {
+                const data = await response.json();
+                product = data.product;
+            }
+        } catch (error) {
+            console.warn('Backend unavailable, using cached product:', error.message);
+        }
+    }
+
+    if (!product) {
+        const localProducts = JSON.parse(localStorage.getItem('products') || '[]');
+        product = localProducts.find(p => String(p.id) === String(productId));
+    }
+
+    if (product) {
+        openEditModal(product);
+    } else {
+        alert('Could not find product details for ID: ' + productId);
+    }
+}
+
+// Open edit modal and populate values
+function openEditModal(product) {
+    editingProductId = product.id;
+
+    const titleEl = document.getElementById('modalTitle');
+    if (titleEl) titleEl.textContent = 'Edit Product: ' + product.medicine_name;
+
+    const idInput = document.getElementById('productId');
+    if (idInput) idInput.value = product.id;
+
+    document.getElementById('medicineName').value = product.medicine_name || '';
+    document.getElementById('brandName').value = product.brand_name || '';
+    document.getElementById('batchNo').value = product.batch_no || product.batch_number || '';
+    document.getElementById('mgfDate').value = formatDateForInput(product.mgf_date || product.manufacturing_date);
+    document.getElementById('expDate').value = formatDateForInput(product.exp_date || product.expiry_date);
+    document.getElementById('quantity').value = (product.quantity !== undefined) ? product.quantity : 0;
+    document.getElementById('price').value = (product.price !== undefined) ? product.price : 0;
     document.getElementById('location').value = product.location || '';
     document.getElementById('note').value = product.note || '';
     document.getElementById('category').value = product.category || 'homeopathic';
 
-    // Handle multiple images - convert old single image to array if needed
-    const productImages = product.images || (product.image ? [product.image] : []);
-    document.getElementById('imageUrl').value = JSON.stringify(productImages);
+    // Display existing images
+    const imagePreview = document.getElementById('imagePreview');
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+        const images = product.images || (product.image ? [product.image] : []);
+        images.forEach((imgSrc) => {
+            const imgContainer = document.createElement('div');
+            imgContainer.style.cssText = 'position: relative; display: inline-block; margin: 0.3rem;';
+            imgContainer.innerHTML = `
+                <img src="${imgSrc}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                <button type="button" onclick="this.parentElement.remove()" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; line-height: 1;">×</button>
+            `;
+            imagePreview.appendChild(imgContainer);
+        });
+    }
 
-    // Show image preview with remove buttons
-    updateImagePreview(productImages);
-
-    document.getElementById('productModal').style.display = 'block';
-    // Prevent body scrolling on mobile
-    document.body.style.overflow = 'hidden';
+    const modal = document.getElementById('productModal');
+    if (modal) modal.style.display = 'block';
 }
 
-// Handle image upload (multiple images)
+// Close modal
+function closeModal() {
+    const modal = document.getElementById('productModal');
+    if (modal) modal.style.display = 'none';
+    editingProductId = null;
+
+    const form = document.getElementById('productForm');
+    if (form) form.reset();
+
+    const imagePreview = document.getElementById('imagePreview');
+    if (imagePreview) imagePreview.innerHTML = '';
+}
+
+// Handle image upload from file picker
 function handleImageUpload(event) {
     const files = event.target.files;
     const imagePreview = document.getElementById('imagePreview');
-    const currentImages = document.getElementById('imageUrl').value ? JSON.parse(document.getElementById('imageUrl').value) : [];
+    if (!files || !imagePreview) return;
 
-    Array.from(files).forEach(file => {
-        // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert(`Image ${file.name} size must be less than 5MB`);
-            return;
-        }
-
-        // Check file type
-        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!validTypes.includes(file.type)) {
-            alert(`Please upload a valid image file (JPG, PNG, GIF, or WebP) for ${file.name}`);
-            return;
-        }
-
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const reader = new FileReader();
+
         reader.onload = function(e) {
-            currentImages.push(e.target.result);
-            document.getElementById('imageUrl').value = JSON.stringify(currentImages);
-            updateImagePreview(currentImages);
+            const imgContainer = document.createElement('div');
+            imgContainer.style.cssText = 'position: relative; display: inline-block; margin: 0.3rem;';
+            imgContainer.innerHTML = `
+                <img src="${e.target.result}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                <button type="button" onclick="this.parentElement.remove()" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; line-height: 1;">×</button>
+            `;
+            imagePreview.appendChild(imgContainer);
         };
-        reader.onerror = function() {
-            alert('Error reading file. Please try again.');
-        };
+
         reader.readAsDataURL(file);
-    });
+    }
 }
 
-// Update image preview
-function updateImagePreview(images) {
-    const imagePreview = document.getElementById('imagePreview');
-    imagePreview.innerHTML = '';
+// Save product (Add or Edit)
+async function saveProduct(event) {
+    if (event) event.preventDefault();
 
-    images.forEach((imgSrc, index) => {
-        const imgContainer = document.createElement('div');
-        imgContainer.style.position = 'relative';
-        imgContainer.style.display = 'inline-block';
+    const token = localStorage.getItem('token');
+    const medicineName = document.getElementById('medicineName').value.trim();
+    const brandName = document.getElementById('brandName').value.trim();
+    const batch = document.getElementById('batchNo').value.trim();
+    const mgf = document.getElementById('mgfDate').value;
+    const exp = document.getElementById('expDate').value;
+    const quantity = parseInt(document.getElementById('quantity').value) || 0;
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const location = document.getElementById('location').value.trim();
+    const note = document.getElementById('note').value.trim();
+    const category = document.getElementById('category').value;
 
-        const img = document.createElement('img');
-        img.src = imgSrc;
-        img.style.width = '100px';
-        img.style.height = '100px';
-        img.style.objectFit = 'cover';
-        img.style.borderRadius = '5px';
-        img.style.border = '2px solid #00838f';
-
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.textContent = '×';
-        removeBtn.style.position = 'absolute';
-        removeBtn.style.top = '-5px';
-        removeBtn.style.right = '-5px';
-        removeBtn.style.background = '#ff6b6b';
-        removeBtn.style.color = 'white';
-        removeBtn.style.border = 'none';
-        removeBtn.style.borderRadius = '50%';
-        removeBtn.style.width = '20px';
-        removeBtn.style.height = '20px';
-        removeBtn.style.cursor = 'pointer';
-        removeBtn.style.fontSize = '12px';
-        removeBtn.onclick = function() { removeImage(index); };
-
-        imgContainer.appendChild(img);
-        imgContainer.appendChild(removeBtn);
-        imagePreview.appendChild(imgContainer);
-    });
-}
-
-// Remove uploaded image
-function removeImage(index) {
-    const currentImages = document.getElementById('imageUrl').value ? JSON.parse(document.getElementById('imageUrl').value) : [];
-    currentImages.splice(index, 1);
-    document.getElementById('imageUrl').value = JSON.stringify(currentImages);
-    updateImagePreview(currentImages);
-}
-
-// Save product (add or update)
-function saveProduct(event) {
-    event.preventDefault();
-
-    const productId = document.getElementById('productId').value;
-    const imageUrlValue = document.getElementById('imageUrl').value;
-    const images = imageUrlValue ? JSON.parse(imageUrlValue) : ['https://images.unsplash.com/photo-1556228578-0d85b1a4e3e5?w=400'];
-
-    const productData = {
-        medicine_name: document.getElementById('medicineName').value,
-        brand_name: document.getElementById('brandName').value,
-        batch_no: document.getElementById('batchNo').value,
-        mgf_date: document.getElementById('mgfDate').value,
-        exp_date: document.getElementById('expDate').value,
-        quantity: parseInt(document.getElementById('quantity').value),
-        price: parseFloat(document.getElementById('price').value),
-        location: document.getElementById('location').value,
-        note: document.getElementById('note').value,
-        category: document.getElementById('category').value,
-        images: images
-    };
-
-    if (productId) {
-        // Update existing product
-        const index = stockData.findIndex(item => item.id === parseInt(productId));
-        if (index !== -1) {
-            stockData[index] = { ...stockData[index], ...productData };
-            alert('Product updated successfully!');
-        }
-    } else {
-        // Add new product
-        const newId = stockData.length > 0 ? Math.max(...stockData.map(item => item.id)) + 1 : 1;
-        stockData.push({ id: newId, ...productData });
-        alert('Product added successfully!');
+    if (!medicineName || !brandName) {
+        alert('Please fill in required fields (Medicine Name, Brand)');
+        return;
     }
 
-    saveStockData(stockData);
+    // Collect images
+    const imagePreview = document.getElementById('imagePreview');
+    const images = [];
+    if (imagePreview) {
+        Array.from(imagePreview.children).forEach(container => {
+            const img = container.querySelector('img');
+            if (img && img.src) {
+                images.push(img.src);
+            }
+        });
+    }
+
+    const fallbackImg = images.length > 0 ? images : ['https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60'];
+
+    const productPayload = {
+        medicine_name: medicineName,
+        brand_name: brandName,
+        batch_no: batch,
+        batch_number: batch,
+        mgf_date: mgf,
+        manufacturing_date: mgf,
+        exp_date: exp,
+        expiry_date: exp,
+        quantity: quantity,
+        price: price,
+        location: location,
+        note: note,
+        category: category,
+        images: fallbackImg
+    };
+
+    // If API is available, try server update
+    if (API_URL && token) {
+        try {
+            if (editingProductId) {
+                await fetch(`${API_URL}/products/${editingProductId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(productPayload)
+                });
+            } else {
+                await fetch(`${API_URL}/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(productPayload)
+                });
+            }
+        } catch (error) {
+            console.warn('Backend update failed, saving locally:', error.message);
+        }
+    }
+
+    // Update in localStorage
+    let localProducts = JSON.parse(localStorage.getItem('products') || '[]');
+    if (editingProductId) {
+        const index = localProducts.findIndex(p => String(p.id) === String(editingProductId));
+        if (index !== -1) {
+            localProducts[index] = { ...localProducts[index], ...productPayload, id: Number(editingProductId) };
+        } else {
+            localProducts.push({ ...productPayload, id: Number(editingProductId) });
+        }
+    } else {
+        const maxId = localProducts.length > 0 ? Math.max(...localProducts.map(p => Number(p.id) || 0)) : 0;
+        const newId = maxId + 1;
+        localProducts.push({ ...productPayload, id: newId });
+    }
+
+    localStorage.setItem('products', JSON.stringify(localProducts));
+    alert(editingProductId ? 'Product updated successfully!' : 'Product added successfully!');
     closeModal();
     loadStockData();
 }
 
 // Delete product
-function deleteProduct(id) {
+async function deleteProduct(productId) {
     if (!confirm('Are you sure you want to delete this product?')) {
         return;
     }
 
-    stockData = stockData.filter(item => item.id !== id);
-    saveStockData(stockData);
+    const token = localStorage.getItem('token');
+    if (API_URL && token) {
+        try {
+            await fetch(`${API_URL}/products/${productId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (error) {
+            console.warn('Backend delete failed, removing locally:', error.message);
+        }
+    }
+
+    let localProducts = JSON.parse(localStorage.getItem('products') || '[]');
+    localProducts = localProducts.filter(p => String(p.id) !== String(productId));
+    localStorage.setItem('products', JSON.stringify(localProducts));
+
+    alert('Product deleted successfully.');
     loadStockData();
-    alert('Product deleted successfully!');
 }
 
-// Close modal
-function closeModal() {
-    document.getElementById('productModal').style.display = 'none';
-    document.getElementById('productForm').reset();
-    // Restore body scrolling
-    document.body.style.overflow = 'auto';
+// Navigation back to dashboard
+function goBack() {
+    window.location.href = 'owner-dashboard.html';
 }
 
-// Search functionality
-function searchStock() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const tbody = document.getElementById('stockTableBody');
-    tbody.innerHTML = '';
-
-    const filteredData = stockData.filter(item =>
-        item.medicine_name.toLowerCase().includes(searchTerm) ||
-        item.brand_name.toLowerCase().includes(searchTerm) ||
-        item.batch_no.toLowerCase().includes(searchTerm) ||
-        (item.location && item.location.toLowerCase().includes(searchTerm)) ||
-        (item.note && item.note.toLowerCase().includes(searchTerm))
-    );
-
-    filteredData.forEach(item => {
-        const row = `
-            <tr>
-                <td>${item.medicine_name}</td>
-                <td>${item.brand_name}</td>
-                <td>${item.batch_no}</td>
-                <td>${formatDate(item.mgf_date)}</td>
-                <td>${formatDate(item.exp_date)}</td>
-                <td>${item.quantity}</td>
-                <td>₹${item.price}</td>
-                <td>${item.location || 'N/A'}</td>
-                <td>${item.note || '-'}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="edit-btn" onclick="editProduct(${item.id})">Edit</button>
-                        <button class="delete-btn" onclick="deleteProduct(${item.id})">Delete</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
+// Format date for table display
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
     });
 }
 
-// Go back to dashboard
-function goBack() {
-    if (currentUser.accountType === 'owner') {
-        window.location.href = 'owner-dashboard.html';
-    } else if (currentUser.accountType === 'employee') {
-        window.location.href = 'employee-dashboard.html';
-    } else {
-        window.location.href = 'index.html';
-    }
+// Format date for HTML date input (YYYY-MM-DD)
+function formatDateForInput(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0];
 }
 
-// Logout
-function logout() {
-    localStorage.removeItem('currentUser');
-    window.location.href = 'index.html';
-}
-
-// Close modal when clicking outside
+// Close modal when clicking on dark backdrop
 window.onclick = function(event) {
     const modal = document.getElementById('productModal');
     if (event.target === modal) {
         closeModal();
+    }
+};
+
+// Logout
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
     }
 }

@@ -11,8 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Load account content based on login status
 function loadAccountContent() {
     const accountContent = document.getElementById('accountContent');
+    const token = localStorage.getItem('token');
 
-    if (!currentUser) {
+    if (!token || !currentUser) {
         // Show login prompt
         accountContent.innerHTML = `
             <div class="login-prompt">
@@ -20,7 +21,6 @@ function loadAccountContent() {
                     <h2>🔐 Login Required</h2>
                     <p>Please login to view your account details</p>
                     <button class="info-btn" onclick="window.location.href='login.html'">Login</button>
-                    <button class="info-btn" onclick="window.location.href='register.html'" style="margin-left: 1rem;">Register</button>
                 </div>
             </div>
         `;
@@ -49,7 +49,7 @@ function loadAccountContent() {
                         </div>
                         <div class="info-row">
                             <span class="info-label">📅 Member Since:</span>
-                            <span class="info-value">${formatDate(currentUser.createdAt)}</span>
+                            <span class="info-value">${formatDate(currentUser.createdAt || new Date())}</span>
                         </div>
                     </div>
 

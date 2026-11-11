@@ -1,8 +1,18 @@
-// Get selected product from localStorage
+// Get selected product from localStorage or fallback
 function getSelectedProduct() {
     const productData = localStorage.getItem('selectedProduct');
     if (productData) {
-        return JSON.parse(productData);
+        try {
+            return JSON.parse(productData);
+        } catch (e) {
+            console.error('Failed to parse selectedProduct:', e);
+        }
+    }
+    const productId = localStorage.getItem('selectedProductId');
+    if (productId) {
+        const products = JSON.parse(localStorage.getItem('products') || '[]');
+        const found = products.find(p => String(p.id) === String(productId));
+        if (found) return found;
     }
     return null;
 }
@@ -10,6 +20,7 @@ function getSelectedProduct() {
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     loadProductDetails();
+    updateCartCount();
 });
 
 // Load product details

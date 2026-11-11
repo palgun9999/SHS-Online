@@ -1,43 +1,30 @@
-// Test employee setup script - run this in browser console to create test employees
-function createTestEmployees() {
-    let users = JSON.parse(localStorage.getItem('shankerUsers')) || [];
+// Account reset script: deletes all accounts and configures the single owner account
+function resetAllAccountsToOwner() {
+    const owner = {
+        id: 1,
+        name: 'J D Shankar',
+        email: 'shankarhomeostores@gmail.com',
+        mobile: '9844874544',
+        password: 'SHS#123',
+        accountType: 'owner',
+        type: 'owner',
+        roles: ['owner', 'customer', 'employee'],
+        approved: true,
+        is_approved: true,
+        createdAt: new Date().toISOString()
+    };
 
-    // Create test employees if they don't exist
-    const testEmployees = [
-        {
-            name: 'Test Employee 1',
-            email: 'employee1@test.com',
-            mobile: '9876543210',
-            password: 'emp123',
-            accountType: 'employee',
-            approved: false,
-            rejected: false,
-            createdAt: new Date().toISOString()
-        },
-        {
-            name: 'Test Employee 2',
-            email: 'employee2@test.com',
-            mobile: '9876543211',
-            password: 'emp123',
-            accountType: 'employee',
-            approved: true,
-            rejected: false,
-            createdAt: new Date().toISOString()
-        }
-    ];
+    localStorage.setItem('users', JSON.stringify([owner]));
+    localStorage.removeItem('shankerUsers');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
 
-    testEmployees.forEach(testEmp => {
-        if (!users.find(u => u.email === testEmp.email)) {
-            users.push(testEmp);
-            console.log(`Created test employee: ${testEmp.email}`);
-        }
-    });
-
-    localStorage.setItem('shankerUsers', JSON.stringify(users));
-    console.log('Test employees setup complete');
-    console.log('Total users:', users.length);
-    console.log('Employees:', users.filter(u => u.accountType === 'employee'));
+    console.log('✓ All accounts deleted successfully.');
+    console.log('✓ Owner account created:');
+    console.log('  Name: ' + owner.name);
+    console.log('  Email: ' + owner.email);
+    console.log('  Password: ' + owner.password);
 }
 
-// Run the function
-createTestEmployees();
+// Execute reset
+resetAllAccountsToOwner();

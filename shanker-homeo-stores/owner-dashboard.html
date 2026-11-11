@@ -312,6 +312,7 @@
         <header>
             <h1>Shankar Homeo Stores</h1>
             <nav>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
                 <button class="login-btn" onclick="window.location.href='index.html'">Home</button>
             </nav>
         </header>
@@ -321,11 +322,11 @@
                 <h2>Owner Dashboard</h2>
                 <ul class="sidebar-menu">
                     <li><button class="active" onclick="showSection('home')">🏠 Home</button></li>
-                    <li><button onclick="showSection('employee-management')">� Employee Management</button></li>
-                    <li><button onclick="showSection('stock-management')">� Stock Management</button></li>
-                    <li><button onclick="window.location.href='stock-view.html'">👁️ View Stock Details</button></li>
-                    <li><button onclick="window.location.href='stock-edit.html'">✏️ Edit Stock</button></li>
-                    <li><button onclick="window.location.href='employee-orders.html'">📦 Order Management</button></li>
+                    <li><button onclick="window.location.href='stock-view.html'" style="background: rgba(255,255,255,0.18); font-weight: 700;">👁️ View Stock Details</button></li>
+                    <li><button onclick="window.location.href='stock-edit.html'" style="background: rgba(255,255,255,0.18); font-weight: 700;">✏️ Edit Stock / Add</button></li>
+                    <li><button onclick="showSection('stock-management')">📦 Stock Overview</button></li>
+                    <li><button onclick="showSection('employee-management')">👥 Employee Management</button></li>
+                    <li><button onclick="window.location.href='employee-orders.html'">📋 Order Management</button></li>
                 </ul>
             </aside>
 
@@ -342,7 +343,36 @@
                 <div id="homeSection" class="content-section active">
                     <div class="welcome-banner">
                         <h2>Welcome to Owner Dashboard</h2>
-                        <p>Manage employee approvals and monitor store activities.</p>
+                        <p>Manage stock inventory, employee approvals, and monitor store activities.</p>
+                    </div>
+
+                    <!-- Prominent Quick Action Cards -->
+                    <div class="quick-actions-card" style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        <h3 style="margin-bottom: 1.2rem; color: #006064; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                            ⚡ Stock & Store Actions
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                            <button onclick="window.location.href='stock-view.html'" style="background: linear-gradient(135deg, #00838f 0%, #006064 100%); color: white; padding: 1.2rem; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 0.35rem; box-shadow: 0 4px 12px rgba(0,131,143,0.3);">
+                                <span style="font-size: 1.6rem;">👁️</span>
+                                <span style="font-size: 1.1rem;">View Stock Details</span>
+                                <span style="opacity: 0.85; font-weight: 400; font-size: 0.82rem;">Browse catalog, quantities & shelves</span>
+                            </button>
+                            <button onclick="window.location.href='stock-edit.html'" style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; padding: 1.2rem; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 0.35rem; box-shadow: 0 4px 12px rgba(46,125,50,0.3);">
+                                <span style="font-size: 1.6rem;">✏️</span>
+                                <span style="font-size: 1.1rem;">Edit Stock & Add Medicine</span>
+                                <span style="opacity: 0.85; font-weight: 400; font-size: 0.82rem;">Update prices, batches & add new stock</span>
+                            </button>
+                            <button onclick="window.location.href='employee-orders.html'" style="background: linear-gradient(135deg, #0288d1 0%, #01579b 100%); color: white; padding: 1.2rem; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 0.35rem; box-shadow: 0 4px 12px rgba(2,136,209,0.3);">
+                                <span style="font-size: 1.6rem;">📋</span>
+                                <span style="font-size: 1.1rem;">Order Management</span>
+                                <span style="opacity: 0.85; font-weight: 400; font-size: 0.82rem;">Accept customer orders & verify OTPs</span>
+                            </button>
+                            <button onclick="showSection('employee-management')" style="background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%); color: white; padding: 1.2rem; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 0.35rem; box-shadow: 0 4px 12px rgba(106,27,154,0.3);">
+                                <span style="font-size: 1.6rem;">👥</span>
+                                <span style="font-size: 1.1rem;">Manage Employees</span>
+                                <span style="opacity: 0.85; font-weight: 400; font-size: 0.82rem;">Approve staff & view attendance</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="stats-grid">
@@ -358,11 +388,11 @@
                             <h3 id="approvedEmployees">0</h3>
                             <p>Approved Employees</p>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='stock-view.html'">
                             <h3 id="totalProducts">0</h3>
                             <p>Total Products</p>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='stock-edit.html'">
                             <h3 id="lowStockItems">0</h3>
                             <p>Low Stock Items</p>
                         </div>
@@ -464,6 +494,8 @@
         </footer>
     </div>
 
+    <script src="config.js"></script>
     <script src="owner-dashboard.js"></script>
+    <script src="theme.js"></script>
 </body>
 </html>

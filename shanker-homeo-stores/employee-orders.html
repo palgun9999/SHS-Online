@@ -175,6 +175,24 @@
             color: white;
         }
 
+        .delete-order-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.85rem;
+            flex: unset;
+        }
+
+        .delete-all-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
         .otp-input-group {
             display: flex;
             gap: 0.5rem;
@@ -243,6 +261,8 @@
         <div class="header">
             <h1>📦 Order Management</h1>
             <div class="nav-buttons">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+                <button class="delete-all-btn" onclick="deleteAllOrders()" id="deleteAllBtn" style="display:none;">🗑️ Delete All Orders</button>
                 <button class="nav-btn" onclick="window.location.href='employee-dashboard.html'">← Dashboard</button>
                 <button class="nav-btn" onclick="logout()">Logout</button>
             </div>
@@ -254,5 +274,6 @@
     </div>
 
     <script src="employee-orders.js"></script>
+    <script src="theme.js"></script>
 </body>
 </html>

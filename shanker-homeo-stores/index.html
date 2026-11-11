@@ -11,20 +11,21 @@
     <div class="mobile-app">
         <header class="app-header">
             <h1>🏪 Shankar Homeo Stores</h1>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
         </header>
 
         <main class="app-content">
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="🔍 Search for medicines, brands, or categories..." onkeyup="searchProducts()">
-            <div class="cart-icon" onclick="window.location.href='cart.html'">
-                🛒 <span id="cartCount">0</span>
+            <div class="search-bar animate-fade-in">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search for medicines, brands, or categories..." onkeyup="searchProducts()" aria-label="Search products">
+                <div class="cart-icon hover-lift" onclick="window.location.href='cart.html'" role="button" tabindex="0" aria-label="View shopping cart">
+                    🛒 <span id="cartCount">0</span>
+                </div>
             </div>
-        </div>
 
-            <div class="category-tabs">
-                <div class="category-tab active" onclick="filterProducts('all')">All Products</div>
-                <div class="category-tab" onclick="filterProducts('homeopathic')">Homeopathic</div>
-                <div class="category-tab" onclick="filterProducts('cosmetic')">Cosmetic</div>
+            <div class="category-tabs animate-slide-in stagger-1">
+                <button class="category-tab active hover-scale" onclick="filterProducts('all', this)">All Products</button>
+                <button class="category-tab hover-scale" onclick="filterProducts('homeopathic', this)">Homeopathic</button>
+                <button class="category-tab hover-scale" onclick="filterProducts('cosmetic', this)">Cosmetic</button>
             </div>
 
             <div class="products-grid" id="productsGrid">
@@ -52,6 +53,8 @@
         </nav>
     </div>
 
+    <script src="config.js"></script>
     <script src="products.js"></script>
+    <script src="theme.js"></script>
 </body>
 </html>

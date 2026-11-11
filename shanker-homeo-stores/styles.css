@@ -90,6 +90,31 @@
     transition: background 0.3s ease;
 }
 
+@media (min-width: 769px) {
+    body {
+        background: #eef2f5;
+        margin: 0;
+    }
+    html[data-theme="dark"] body {
+        background: #0f1422;
+    }
+    .mobile-app {
+        max-width: 520px;
+        margin: 0 auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        border-left: 1px solid rgba(0, 0, 0, 0.08);
+        border-right: 1px solid rgba(0, 0, 0, 0.08);
+        position: relative;
+    }
+    .bottom-nav {
+        max-width: 520px;
+        left: 50% !important;
+        transform: translateX(-50%);
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+    }
+}
+
 .app-header {
     background: var(--app-header-bg);
     color: var(--app-header-text);
@@ -129,10 +154,12 @@
     padding: 1rem;
     overflow-y: auto;
     padding-bottom: 80px;
+    background: var(--app-content-bg);
+    transition: background 0.3s ease;
 }
 
 .search-bar {
-    background: white;
+    background: var(--search-bar-bg);
     padding: 1rem;
     border-radius: 12px;
     margin-bottom: 1rem;
@@ -140,37 +167,42 @@
     gap: 1rem;
     align-items: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease;
 }
 
 .search-input {
     flex: 1;
     padding: 0.8rem 1rem;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--search-input-border);
     border-radius: 8px;
     font-size: 1rem;
+    background: var(--search-input-bg);
+    color: var(--search-input-text);
+    transition: border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 
 .search-input:focus {
     outline: none;
-    border-color: #00838f;
+    border-color: var(--search-input-focus-border);
 }
 
 .cart-icon {
-    background: #00838f;
-    color: white;
+    background: var(--cart-icon-bg);
+    color: var(--cart-icon-text);
     padding: 0.8rem 1rem;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
     position: relative;
+    transition: background 0.3s ease;
 }
 
 .cart-icon:hover {
-    background: #006064;
+    filter: brightness(1.1);
 }
 
 .bottom-nav {
-    background: white;
+    background: var(--nav-bg);
     display: flex;
     justify-content: space-around;
     padding: 0.5rem 0;
@@ -180,6 +212,7 @@
     right: 0;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
+    transition: background 0.3s ease;
 }
 
 .nav-item {
@@ -188,17 +221,17 @@
     align-items: center;
     padding: 0.5rem 1rem;
     cursor: pointer;
-    color: #666;
+    color: var(--nav-text);
     transition: all 0.3s ease;
     flex: 1;
 }
 
 .nav-item.active {
-    color: #00838f;
+    color: var(--nav-active-color);
 }
 
 .nav-item:hover {
-    color: #006064;
+    color: var(--nav-text-active);
 }
 
 .nav-icon {
@@ -211,7 +244,78 @@
     font-weight: 600;
 }
 
+/* Theme Toggle Button Styles */
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    color: var(--app-header-text);
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Dashboard theme toggle override */
+[data-theme="dark"] .theme-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Login Page Theme Toggle Styles */
+.login-btn.theme-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.login-btn.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
 /* Account Page Styles */
+.login-prompt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+}
+
+.login-card {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    max-width: 400px;
+    width: 90%;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card h2 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    transition: color 0.3s ease;
+}
+
+.login-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+}
 .login-prompt {
     display: flex;
     justify-content: center;
@@ -244,10 +348,11 @@
 }
 
 .profile-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 15px;
     padding: 2rem;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .profile-header {
@@ -258,32 +363,36 @@
 .profile-avatar {
     width: 100px;
     height: 100px;
-    background: linear-gradient(135deg, #00838f 0%, #006064 100%);
+    background: var(--accent-color);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 3rem;
     margin: 0 auto 1rem;
+    transition: background 0.3s ease;
 }
 
 .profile-header h2 {
-    color: #006064;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
 }
 
 .account-type {
-    color: #00838f;
+    color: var(--accent-color);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.9rem;
+    transition: color 0.3s ease;
 }
 
 .roles-info {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.8rem;
     margin-top: 0.5rem;
     font-style: italic;
+    transition: color 0.3s ease;
 }
 
 .account-info {
@@ -294,7 +403,8 @@
     display: flex;
     justify-content: space-between;
     padding: 1rem 0;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
 }
 
 .info-row:last-child {
@@ -302,12 +412,14 @@
 }
 
 .info-label {
-    color: #666;
+    color: var(--text-secondary);
     font-weight: 600;
+    transition: color 0.3s ease;
 }
 
 .info-value {
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .account-actions {
@@ -344,11 +456,12 @@
 }
 
 .order-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 15px;
     padding: 1.5rem;
     margin-bottom: 1rem;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .order-header {
@@ -357,13 +470,15 @@
     align-items: center;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 2px solid var(--border-color);
+    transition: border-color 0.3s ease;
 }
 
 .order-id {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #006064;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .order-otp {
@@ -409,8 +524,9 @@
     align-items: center;
     gap: 0.8rem;
     padding: 0.8rem;
-    background: #f8f9fa;
+    background: var(--table-row-bg);
     border-radius: 8px;
+    transition: background 0.3s ease;
 }
 
 .item-image {
@@ -426,13 +542,15 @@
 
 .item-name {
     font-weight: 600;
-    color: #006064;
+    color: var(--text-primary);
     font-size: 0.9rem;
+    transition: color 0.3s ease;
 }
 
 .item-quantity {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.8rem;
+    transition: color 0.3s ease;
 }
 
 .item-price {
@@ -445,21 +563,24 @@
     text-align: right;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #006064;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .order-date {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.8rem;
     margin-top: 0.5rem;
+    transition: color 0.3s ease;
 }
 
 .payment-info {
-    background: #f8f9fa;
+    background: var(--table-row-bg);
     padding: 0.8rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     font-size: 0.85rem;
+    transition: background 0.3s ease;
 }
 
 .empty-orders {
@@ -474,14 +595,15 @@
 }
 
 .cart-item {
-    background: white;
+    background: var(--card-bg);
     border-radius: 15px;
     padding: 1rem;
     margin-bottom: 1rem;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
     display: flex;
     align-items: center;
     gap: 1rem;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .item-image {
@@ -497,9 +619,10 @@
 
 .item-name {
     font-weight: 700;
-    color: #006064;
+    color: var(--text-primary);
     margin-bottom: 0.3rem;
     font-size: 1rem;
+    transition: color 0.3s ease;
 }
 
 .item-price {
@@ -541,11 +664,12 @@
 }
 
 .cart-summary {
-    background: white;
+    background: var(--card-bg);
     border-radius: 15px;
     padding: 1.5rem;
     margin: 1rem;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .summary-row {
@@ -553,27 +677,31 @@
     justify-content: space-between;
     margin-bottom: 0.8rem;
     font-size: 1rem;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .total {
     font-weight: 700;
-    color: #006064;
+    color: var(--text-primary);
     font-size: 1.2rem;
-    border-top: 2px solid #00838f;
+    border-top: 2px solid var(--border-color);
     padding-top: 0.8rem;
+    transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 .checkout-btn {
     width: 100%;
     padding: 1rem;
-    background: linear-gradient(135deg, #00838f 0%, #006064 100%);
-    color: white;
+    background: var(--button-bg);
+    color: var(--button-text);
     border: none;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     margin-top: 1rem;
+    transition: background 0.3s ease;
 }
 
 .payment-section {
@@ -583,9 +711,10 @@
 }
 
 .payment-section h3 {
-    color: #006064;
+    color: var(--text-primary);
     margin-bottom: 0.8rem;
     font-size: 1rem;
+    transition: color 0.3s ease;
 }
 
 .payment-options {
@@ -600,15 +729,16 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.8rem;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    background: var(--card-bg);
 }
 
 .payment-option:hover {
-    border-color: #00838f;
-    background: #f0f8ff;
+    border-color: var(--accent-color);
+    background: var(--table-row-hover);
 }
 
 .payment-option input[type="radio"] {
@@ -619,35 +749,40 @@
 
 .payment-option span {
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     font-size: 0.9rem;
+    transition: color 0.3s ease;
 }
 
 .upi-container {
-    background: #f8f9fa;
+    background: var(--table-row-bg);
     padding: 1.5rem;
     border-radius: 15px;
     text-align: center;
-    border: 2px solid #00838f;
+    border: 2px solid var(--accent-color);
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .upi-container h4 {
-    color: #006064;
+    color: var(--text-primary);
     margin-bottom: 0.8rem;
     font-size: 1rem;
+    transition: color 0.3s ease;
 }
 
 .upi-id {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.85rem;
     margin-top: 0.8rem;
+    transition: color 0.3s ease;
 }
 
 .upi-amount {
-    color: #006064;
+    color: var(--text-primary);
     font-weight: 700;
     font-size: 1.1rem;
     margin: 0.5rem 0;
+    transition: color 0.3s ease;
 }
 
 .confirm-payment-btn {
@@ -748,6 +883,494 @@
     --placeholder-text: #666;
 }
 
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transition: translateY(-10px);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(0, 131, 143, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(0, 131, 143, 0.8);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Animated elements */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.6s ease-out;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+.animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+.animate-bounce {
+    animation: bounce 2s infinite;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-glow {
+    animation: glow 2s infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Staggered animations */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Hover animations */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.hover-scale {
+    transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.hover-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 25px rgba(0, 131, 143, 0.6);
+}
+
+/* Loading animations */
+.loading-spinner {
+    border: 3px solid rgba(0, 131, 143, 0.3);
+    border-top: 3px solid #00838f;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+.loading-dots span {
+    animation: pulse 1.4s infinite;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Success animations */
+.success-checkmark {
+    animation: scaleIn 0.5s ease-out;
+}
+
+/* Button animations */
+.btn-animate {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-animate::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-animate:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Card animations */
+.card-enter {
+    animation: slideDown 0.4s ease-out;
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Status badge animations */
+.status-badge {
+    transition: all 0.3s ease;
+}
+
+.status-badge:hover {
+    transform: scale(1.1);
+}
+
+/* Theme toggle animation */
+.theme-toggle {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: rotate(180deg);
+}
+
+.theme-toggle:active {
+    transform: scale(0.9);
+}
+
+/* Form input animations */
+.form-input {
+    transition: all 0.3s ease;
+    border: 2px solid var(--input-border);
+}
+
+.form-input:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 10px rgba(0, 131, 143, 0.3);
+    transform: scale(1.02);
+}
+
+/* Button ripple effect */
+.btn-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ripple::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-ripple:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Cart item animations */
+.cart-item {
+    animation: slideIn 0.4s ease-out;
+    transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Order card animations */
+.order-card {
+    animation: fadeIn 0.5s ease-out;
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Status badge pulse animation */
+.status-placed {
+    animation: pulse 2s infinite;
+}
+
+.status-ready {
+    animation: glow 2s infinite;
+}
+
+/* Modal animations */
+.modal {
+    animation: scaleIn 0.3s ease-out;
+}
+
+.modal-backdrop {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Success checkmark animation */
+@keyframes checkmark {
+    0% {
+        stroke-dashoffset: 100;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+.success-icon {
+    animation: checkmark 0.6s ease-out;
+}
+
+/* Floating cart badge */
+.cart-count {
+    animation: pulse 2s infinite;
+}
+
+/* Notification animation */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification {
+    animation: slideInRight 0.5s ease-out;
+}
+
+/* Tab animations */
+.tab {
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    transform: translateY(-2px);
+}
+
+.tab.active {
+    animation: scaleIn 0.3s ease-out;
+}
+
+/* Dashboard card animations */
+.dashboard-card {
+    animation: fadeIn 0.6s ease-out;
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Table row animations */
+.table-row {
+    transition: all 0.3s ease;
+}
+
+.table-row:hover {
+    background: var(--table-row-hover);
+    transform: scale(1.01);
+}
+
+/* Quantity button animations */
+.quantity-btn {
+    transition: all 0.2s ease;
+}
+
+.quantity-btn:hover {
+    transform: scale(1.2);
+}
+
+.quantity-btn:active {
+    transform: scale(0.9);
+}
+
+/* Search input animation */
+.search-input {
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(0, 131, 143, 0.3);
+}
+
+/* Price tag animation */
+.price-tag {
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* Loading skeleton animation */
+@keyframes skeleton {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton 1.5s infinite;
+}
+
+/* Heart/favorite animation */
+@keyframes heartBeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+}
+
+.favorite-btn:hover {
+    animation: heartBeat 0.6s ease-out;
+}
+
+/* Typing animation for placeholders */
+.typing-effect {
+    overflow: hidden;
+    border-right: 2px solid #00838f;
+    white-space: nowrap;
+    animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink-caret {
+    from, to {
+        border-color: transparent;
+    }
+    50% {
+        border-color: #00838f;
+    }
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: var(--bg-gradient);
@@ -779,8 +1402,8 @@ header h1 {
 }
 
 .login-btn {
-    background: white;
-    color: #00838f;
+    background: var(--button-bg);
+    color: var(--button-text);
     border: none;
     padding: 0.8rem 1.5rem;
     border-radius: 25px;
@@ -791,7 +1414,7 @@ header h1 {
 }
 
 .login-btn:hover {
-    background: #f0f0f0;
+    background: var(--input-bg);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }

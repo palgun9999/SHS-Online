@@ -1,13 +1,7 @@
-// Get stock data from localStorage
-function getStockData() {
-    const storedData = localStorage.getItem('stockData');
-    if (storedData) {
-        return JSON.parse(storedData);
-    }
-    return [];
-}
+// Backend API configuration
+const API_URL = API_CONFIG.apiUrl;
 
-// Attendance data
+// Attendance data (still using localStorage for attendance)
 let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
 let currentSession = null;
 
@@ -16,7 +10,8 @@ let currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
-    if (!currentUser || currentUser.accountType !== 'employee' || !currentUser.approved) {
+    const token = localStorage.getItem('token');
+    if (!token || !currentUser || (currentUser.accountType !== 'employee' && !currentUser.roles?.includes('employee')) || !currentUser.approved) {
         alert('Access denied. Please login as an approved employee.');
         window.location.href = 'login.html';
         return;
@@ -50,144 +45,142 @@ function showSection(section) {
     document.getElementById('pageTitle').textContent = titles[section];
 }
 
-// Get stock data for statistics
-function getStockData() {
-    const storedData = localStorage.getItem('stockData');
-    if (storedData) {
-        return JSON.parse(storedData);
-    }
-    return [];
-}
-
 // Load attendance data
 function loadAttendanceData() {
-    const tbody = document.getElementById('attendanceTableBody');
-    tbody.innerHTML = '';
+    attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+    updateAttendanceTable();
+}
 
-    // Sort by date (newest first)
-    const sortedAttendance = [...attendanceData].sort((a, b) => new Date(b.date) - new Date(a.date));
+// Update attendance table
+function updateAttendanceTable() {
+    const tableBody = document.getElementById('attendanceTableBody');
+    if (!tableBody) return;
 
-    sortedAttendance.forEach(record => {
-        const hoursWorked = calculateHoursWorked(record.checkIn, record.checkOut);
-        const row = `
-            <tr>
-                <td>${formatDate(record.date)}</td>
-                <td>${formatTime(record.checkIn)}</td>
-                <td>${record.checkOut ? formatTime(record.checkOut) : 'Not checked out'}</td>
-                <td>${hoursWorked}</td>
-                <td>${record.status}</td>
-            </tr>
+    tableBody.innerHTML = '';
+
+    if (attendanceData.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No attendance records</td></tr>';
+        return;
+    }
+
+    attendanceData.forEach(record => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${formatDate(record.date)}</td>
+            <td>${record.checkIn}</td>
+            <td>${record.checkOut || 'Not checked out'}</td>
+            <td>${record.hoursWorked || '0'}</td>
+            <td><span class="status-badge ${record.status}">${record.status}</span></td>
         `;
-        tbody.innerHTML += row;
+        tableBody.appendChild(row);
     });
 }
 
-function calculateHoursWorked(checkIn, checkOut) {
-    if (!checkOut) return 'In progress';
-    const inTime = new Date(checkIn);
-    const outTime = new Date(checkOut);
-    const diff = outTime - inTime;
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
+// Update statistics
+async function updateStats() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/orders`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const orders = data.orders || [];
+
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(o => o.status === 'placed').length;
+            const readyOrders = orders.filter(o => o.status === 'ready').length;
+            const completedOrders = orders.filter(o => o.status === 'completed').length;
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('readyOrders').textContent = readyOrders;
+            document.getElementById('completedOrders').textContent = completedOrders;
+        }
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+    }
 }
 
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-}
+// Update attendance status
+function updateAttendanceStatus() {
+    const statusElement = document.getElementById('attendanceStatus');
+    if (!statusElement) return;
 
-function formatTime(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    currentSession = attendanceData.find(record => record.date === new Date().toDateString() && !record.checkOut);
+
+    if (currentSession) {
+        statusElement.textContent = 'Checked In';
+        statusElement.className = 'status-badge checked-in';
+    } else {
+        statusElement.textContent = 'Not Checked In';
+        statusElement.className = 'status-badge not-checked-in';
+    }
 }
 
 // Check in
 function checkIn() {
     if (currentSession) {
-        alert('You are already checked in!');
+        alert('You are already checked in');
         return;
     }
 
-    currentSession = {
-        userId: currentUser.email,
-        date: new Date().toISOString(),
-        checkIn: new Date().toISOString(),
+    const newRecord = {
+        date: new Date().toDateString(),
+        checkIn: new Date().toLocaleTimeString(),
         checkOut: null,
-        status: 'Present'
+        hoursWorked: null,
+        status: 'checked-in'
     };
 
+    attendanceData.push(newRecord);
+    localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+    currentSession = newRecord;
+
     updateAttendanceStatus();
-    alert('Checked in successfully at ' + formatTime(currentSession.checkIn));
+    updateAttendanceTable();
+    alert('Checked in successfully');
 }
 
 // Check out
 function checkOut() {
     if (!currentSession) {
-        alert('You need to check in first!');
+        alert('You are not checked in');
         return;
     }
 
-    currentSession.checkOut = new Date().toISOString();
-    attendanceData.push(currentSession);
+    const checkOutTime = new Date();
+    const checkInTime = new Date(`${currentSession.date} ${currentSession.checkIn}`);
+    const hoursWorked = ((checkOutTime - checkInTime) / (1000 * 60 * 60)).toFixed(2);
+
+    currentSession.checkOut = checkOutTime.toLocaleTimeString();
+    currentSession.hoursWorked = hoursWorked;
+    currentSession.status = 'completed';
+
     localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-
     currentSession = null;
+
     updateAttendanceStatus();
-    loadAttendanceData();
-    updateStats();
-
-    alert('Checked out successfully!');
+    updateAttendanceTable();
+    alert('Checked out successfully');
 }
 
-function updateAttendanceStatus() {
-    const statusElement = document.getElementById('currentStatus');
-    const timeElement = document.getElementById('checkInTime');
-
-    if (currentSession) {
-        statusElement.textContent = 'Checked In';
-        statusElement.style.color = '#28a745';
-        timeElement.textContent = 'Since: ' + formatTime(currentSession.checkIn);
-    } else {
-        statusElement.textContent = 'Not Checked In';
-        statusElement.style.color = '#dc3545';
-        timeElement.textContent = '';
-    }
-}
-
-// Update statistics
-function updateStats() {
-    const stockData = getStockData();
-    const totalProducts = stockData.length;
-    const lowStockItems = stockData.filter(item => item.quantity < 10).length;
-
-    // Calculate attendance for current month
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-
-    const thisMonthAttendance = attendanceData.filter(record => {
-        const recordDate = new Date(record.date);
-        return recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear;
-    }).length;
-
-    document.getElementById('totalProducts').textContent = totalProducts;
-    document.getElementById('lowStockItems').textContent = lowStockItems;
-    document.getElementById('thisMonthAttendance').textContent = thisMonthAttendance;
+// Format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
 }
 
 // Logout
 function logout() {
-    if (currentSession) {
-        if (confirm('You are currently checked in. Do you want to check out before logging out?')) {
-            checkOut();
-        } else {
-            alert('Please check out before logging out.');
-            return;
-        }
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
     }
-
-    localStorage.removeItem('currentUser');
-    currentUser = null;
-    window.location.href = 'index.html';
 }

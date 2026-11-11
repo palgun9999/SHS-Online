@@ -3,11 +3,22 @@ let currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
-    if (!currentUser || (currentUser.type !== 'employee' && currentUser.type !== 'owner')) {
+    currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const role = currentUser?.accountType || currentUser?.type;
+    const hasAccess = role === 'employee' || role === 'owner' || 
+                      currentUser?.roles?.includes('employee') || 
+                      currentUser?.roles?.includes('owner');
+
+    if (!currentUser || !hasAccess) {
         alert('Access denied. Employee or owner access required.');
         window.location.href = 'login.html';
         return;
     }
+    // Show "Delete All Orders" button for owner only
+    const isOwner = currentUser?.accountType === 'owner' || currentUser?.roles?.includes('owner');
+    const deleteAllBtn = document.getElementById('deleteAllBtn');
+    if (deleteAllBtn && isOwner) deleteAllBtn.style.display = 'inline-block';
+
     loadOrders();
 });
 
@@ -65,6 +76,11 @@ function loadOrders() {
             `;
         }
 
+        const isOwner = currentUser?.accountType === 'owner' || currentUser?.roles?.includes('owner');
+        const deleteBtn = isOwner ? `
+            <button class="action-btn delete-order-btn" onclick="deleteOrder('${order.orderId}')">🗑️ Delete Order</button>
+        ` : '';
+
         const orderCard = `
             <div class="order-card">
                 <div class="order-header">
@@ -74,7 +90,10 @@ function loadOrders() {
                         <div class="order-date">Placed on: ${new Date(order.createdAt).toLocaleString()}</div>
                         ${order.acceptedBy ? `<div class="customer-info">Accepted by: ${order.acceptedBy} at ${new Date(order.acceptedAt).toLocaleString()}</div>` : ''}
                     </div>
-                    <span class="order-status ${statusClass}">${statusText}</span>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
+                        <span class="order-status ${statusClass}">${statusText}</span>
+                        ${deleteBtn}
+                    </div>
                 </div>
 
                 <div class="payment-info">
@@ -155,6 +174,22 @@ function completeOrder(orderId) {
 
     localStorage.setItem('orders', JSON.stringify(allOrders));
     alert('Order completed successfully!');
+    loadOrders();
+}
+
+// Delete a single order (owner only)
+function deleteOrder(orderId) {
+    if (!confirm('Delete this order permanently?')) return;
+    let allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+    allOrders = allOrders.filter(o => o.orderId !== orderId);
+    localStorage.setItem('orders', JSON.stringify(allOrders));
+    loadOrders();
+}
+
+// Delete all orders (owner only)
+function deleteAllOrders() {
+    if (!confirm('Delete ALL orders permanently? This cannot be undone.')) return;
+    localStorage.removeItem('orders');
     loadOrders();
 }
 
